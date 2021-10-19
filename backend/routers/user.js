@@ -1,6 +1,7 @@
 const express = require('express');
 const {v4: uuidv4 } = require('uuid');
 const userRouter = express.Router();
+// const connection = require('../database/connection');  // Database connection
 
 // Endpoint to get all users
 userRouter.get('/', (req, res) => {
@@ -25,4 +26,6 @@ userRouter.post('/', (req, res) => {
     res.status(200).json({'msg': 'New user created', 'user': JSON.stringify(user)});
 })
 
-module.exports = userRouter;
+module.exports = function(connection) {
+    return userRouter;
+}
