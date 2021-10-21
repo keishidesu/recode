@@ -2,6 +2,18 @@ html body {
   font-family: 'Raleway', sans-serif;
 }
 
+.nf-primary {
+  color: #383B56;
+}
+
+.nf-blue {
+  color: #93CDF0;
+}
+
 .bg-nf-primary {
   background-color: #383B56;
+}
+
+.bg-nf-secondary {
+  background-color: #47859A;
 }

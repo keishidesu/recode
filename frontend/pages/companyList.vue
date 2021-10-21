@@ -9,7 +9,7 @@
 export default {
   data() {
     return {
-      bgcolor: 'bg-nf-primary',
+      bgcolor: 'bg-nf-secondary',
       header: {
         title: 'Find your dream job today',
         navs: [
