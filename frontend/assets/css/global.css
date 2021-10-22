@@ -2,6 +2,11 @@ html body {
   font-family: 'Raleway', sans-serif;
 }
 
+.border-round {
+  border-radius: 1.5em;
+  border-color: #F5F5F5
+}
+
 .nf-primary {
   color: #383B56;
 }
@@ -16,4 +21,44 @@ html body {
 
 .bg-nf-secondary {
   background-color: #47859A;
+}
+
+.bg-nf-white {
+  background-color: #F5F5F5;
+}
+
+.nf-button {
+  color: black;
+  font-weight: bold;
+  background-color: #93CDF0;
+  border-color: #93CDF0;
+  border-radius: 1em;
+}
+
+.nf-button:hover {
+  color: black;
+  background-color: white;
+  border-color: #93CDF0;
+}
+
+.nf-button-secondary {
+  color: #383B56;
+  background-color: #B1FBCE;
+  border-color: #B1FBCE;
+  border-radius: 1em;
+  box-shadow: none !important
+}
+
+.nf-button-secondary:hover {
+  color: #383B56;
+  background-color: #75DA9D;
+  border-color: #75DA9D;
+  border-radius: 1em;
+}
+
+.nf-button-secondary:focus {
+  color: #383B56;
+  background-color: #75DA9D;
+  border-color: #75DA9D;
+  border-radius: 1em;
 }

@@ -11,7 +11,7 @@ export default {
     return {
       bgcolor: 'bg-nf-secondary',
       header: {
-        title: 'Find your dream job today',
+        title: 'Find your next company',
         navs: [
           {item:'Find a Job | ', link: '#'},
           {item:'Find a Company | ', link: '#'},
