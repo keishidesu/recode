@@ -3,7 +3,18 @@ const {v4: uuidv4 } = require('uuid');
 const userRouter = express.Router();
 // const connection = require('../database/connection');  // Database connection
 
+
 // Endpoint to get all users
+/**
+ * @swagger
+ * /:
+ *  get:
+ *    description: Used to show welcome messages for the user route
+ *    response:
+ *      '200':
+ *        description: Done adsasdasdddd
+ * 
+ */
 userRouter.get('/', (req, res) => {
     res.status(200).json({'message': 'Welcome to the users /GET route'})
 })
