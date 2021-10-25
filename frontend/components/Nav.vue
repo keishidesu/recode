@@ -9,7 +9,7 @@
           <!-- User Logged In -->
           <b-navbar-nav v-if="isLoggedIn" class="ml-auto">
             <b-nav-item v-for="(item, index) in navloggedin" :key="item[index]" class="ml-auto">
-              <NuxtLink to='`{item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
+              <NuxtLink :to='`/${item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
             </b-nav-item>
             <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
           </b-navbar-nav>
@@ -35,9 +35,9 @@ export default {
       isLoggedIn: true,
 
       navloggedin: [
-        {item:'Find a Job', link: '#'},
-        {item:'Find a Company', link: '#'},
-        {item:'Connect with People', link: '#'},
+        {item:'Find a Job', link: ''},
+        {item:'Find a Company', link: 'companyListing'},
+        {item:'Connect with People', link: 'employeeListing'},
       ],
       nav: [
         {item:'Sign In', link: '#'},

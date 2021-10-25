@@ -22,7 +22,7 @@ export default {
         ]
       },
       body: {
-        title: 'Explore Jobs'
+        title: 'Explore Remote Jobs'
       }
     }
   }
