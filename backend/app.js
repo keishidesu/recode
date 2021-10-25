@@ -29,7 +29,11 @@ app.use('/users', userRouter)
 
 // Default route for backend
 app.get('/', (req, res) => {
-  res.status(200).send('Welcome to NotFiverr backend')
+  res.status(200).send('Welcome to re:code backend')
+})
+
+app.get('/testing', (req, res) => {
+  res.status(200).send('Welcome to testing')
 })
 
 // Listen at stated port
