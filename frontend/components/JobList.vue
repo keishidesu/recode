@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row class="justify-content-center mt-2">
-      <b-card v-for="(job, index) in jobs" :key="job[index]" class="text-center bg-nf-white border-round mt-3" style="width:85%">
+      <b-card v-for="(job, index) in jobs" :key="job[index]" class="text-center bg-nf-white border-round mt-3" style="width:100%">
         <b-row>
           <b-col md="1" class="ml-4">
             <b-img rounded :src="require(`../assets/img/${job.companyImg}.png`)" width="70px" fluid />

@@ -2,7 +2,7 @@
   <div>
     <b-navbar toggleable="lg" type="dark" :class={bgcolor}>
       <b-container>
-        <b-navbar-brand style="font-size: 1.5rem">notfiverr</b-navbar-brand>
+        <b-navbar-brand style="font-size: 1.5rem">re:code</b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
 
