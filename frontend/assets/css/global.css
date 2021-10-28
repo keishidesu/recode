@@ -67,3 +67,25 @@ html body {
   border-color: #75DA9D;
   border-radius: 1em;
 }
+
+.nf-button-red {
+  color: #383B56;
+  background-color: #FFB2B2;
+  border-color: #FFB2B2;
+  border-radius: 1em;
+  box-shadow: none !important
+}
+
+.nf-button-red:hover {
+  color: #383B56;
+  background-color: #F38484;
+  border-color: #F38484;
+  border-radius: 1em;
+}
+
+.nf-button-red:focus {
+  color: #383B56;
+  background-color: #F38484;
+  border-color: #F38484;
+  border-radius: 1em;
+}
