@@ -30,13 +30,13 @@
       </b-form-group>
 
       <b-form-group id="input-group-4" label="Description of yourself:" label-for="input-4">
-        <b-form-input
+        <b-form-textarea
           id="input-4"
-          class="py-5"
+          rows="8"
           v-model="form.description"
           placeholder="Enter description"
           required
-        ></b-form-input>
+        ></b-form-textarea>
       </b-form-group>
 
       <div class="text-center">
