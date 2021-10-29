@@ -2,16 +2,19 @@
   <div>
     <b-navbar toggleable="lg" type="dark" :class={bgcolor}>
       <b-container>
-        <b-navbar-brand style="font-size: 1.5rem">notfiverr</b-navbar-brand>
+        <b-navbar-brand style="font-size: 1.5rem">re:code</b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
 
           <!-- User Logged In -->
           <b-navbar-nav v-if="isLoggedIn" class="ml-auto">
             <b-nav-item v-for="(item, index) in navloggedin" :key="item[index]" class="ml-auto">
-              <NuxtLink to='`{item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
+              <NuxtLink :to='`/${item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
             </b-nav-item>
-            <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
+            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold text-white text-decoration-none">Company Dashboard</NuxtLink></b-nav-item>
+            <b-nav-item v-else><NuxtLink to='/developerDash' class="font-weight-bold text-white text-decoration-none">My Dashboard</NuxtLink></b-nav-item>
+            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
+            <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-red">Logout</NuxtLink></b-nav-item>
           </b-navbar-nav>
 
           <!-- User NOT Logged In -->
@@ -33,16 +36,17 @@ export default {
   data() {
     return {
       isLoggedIn: true,
+      isEmployer: false,
 
       navloggedin: [
-        {item:'Find a Job', link: '#'},
-        {item:'Find a Company', link: '#'},
-        {item:'Connect with People', link: '#'},
+        {item:'Explore Jobs', link: ''},
+        {item:'Explore Companies', link: 'companyListing'},
+        {item:'Connect with Developers', link: 'developerListing'},
       ],
       nav: [
         {item:'Sign In', link: '#'},
         {item:'Join as Company', link: '#'},
-        {item:'Join', link: '#'},
+        {item:'Join as Developer', link: '#'},
       ]
     }
   }
