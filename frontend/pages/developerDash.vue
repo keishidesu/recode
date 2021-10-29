@@ -7,17 +7,17 @@
         <b-col cols="9">
           <div class="my-4">
             <h5 class="font-weight-bold">Your Applied Jobs</h5>
-            <UserJobList />
+            <DevJobList />
           </div>
           <div class="my-4 pt-5">
             <h5 class="font-weight-bold">Your Completed Jobs</h5>
-            <UserCompletedJobList />
+            <DevCompletedJobList />
           </div>
         </b-col>
         <b-col>
           <div class="my-4">
             <h5 class="font-weight-bold">Your Profile</h5>
-            <UserProfile />
+            <DeveloperProfile />
           </div>
         </b-col>
       </b-row>

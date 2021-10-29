@@ -11,7 +11,10 @@
             <b-nav-item v-for="(item, index) in navloggedin" :key="item[index]" class="ml-auto">
               <NuxtLink :to='`/${item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
             </b-nav-item>
-            <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
+            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold text-white text-decoration-none">Company Dashboard</NuxtLink></b-nav-item>
+            <b-nav-item v-else><NuxtLink to='/developerDash' class="font-weight-bold text-white text-decoration-none">My Dashboard</NuxtLink></b-nav-item>
+            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
+            <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-red">Logout</NuxtLink></b-nav-item>
           </b-navbar-nav>
 
           <!-- User NOT Logged In -->
@@ -33,16 +36,17 @@ export default {
   data() {
     return {
       isLoggedIn: true,
+      isEmployer: false,
 
       navloggedin: [
-        {item:'Find a Job', link: ''},
-        {item:'Find a Company', link: 'companyListing'},
-        {item:'Connect with People', link: 'employeeListing'},
+        {item:'Explore Jobs', link: ''},
+        {item:'Explore Companies', link: 'companyListing'},
+        {item:'Connect with Developers', link: 'developerListing'},
       ],
       nav: [
         {item:'Sign In', link: '#'},
         {item:'Join as Company', link: '#'},
-        {item:'Join', link: '#'},
+        {item:'Join as Developer', link: '#'},
       ]
     }
   }

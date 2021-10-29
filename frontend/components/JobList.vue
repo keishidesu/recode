@@ -13,7 +13,10 @@
           <b-col class="text-left mt-3">{{job.tag}}</b-col>
           <b-col class="text-right mt-2">
             <b-button v-b-toggle="`collapse-job-${index}`" class="nf-button-secondary">More</b-button>
-            <b-button class="nf-button-secondary">Apply Job</b-button>
+            <b-button v-b-modal.modal-applyjob class="nf-button-secondary">Apply Job</b-button>
+            <b-modal id="modal-applyjob" title="Apply this Job" hide-footer>
+              <ApplyJobModal />
+            </b-modal>
           </b-col>
         </b-row>
         <b-row class="mx-3 text-left">

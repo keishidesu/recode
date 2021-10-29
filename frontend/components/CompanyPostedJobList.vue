@@ -9,6 +9,7 @@
           <b-col md="4" class="text-left ml-1">
             <div>{{job.companyName}}</div>
             <div class="font-weight-bold">{{job.position}}</div>
+            <div class="nf-red">Expiring on ...</div>
           </b-col>
           <b-col class="text-left mt-3">{{job.tag}}</b-col>
           <b-col class="text-right mt-2">

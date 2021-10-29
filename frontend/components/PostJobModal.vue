@@ -10,24 +10,38 @@
         ></b-form-input>
       </b-form-group>
 
-      <b-form-group id="input-postjob-salary" label-for="postjobinput-2">
+      <b-form-group id="input-postjob-salarystart" label-for="postjobinput-2">
         <b-form-input
           id="postjobinput-2"
-          v-model="form.jobsalary"
-          placeholder="Salary Range"
+          v-model="form.salarystart"
+          placeholder="Salary Start"
           required
         ></b-form-input>
       </b-form-group>
 
-      <b-form-group id="input-postjob-desc" label-for="postjobinput-3">
-        <b-form-textarea
+      <b-form-group id="input-postjob-salaryend" label-for="postjobinput-3">
+        <b-form-input
           id="postjobinput-3"
+          v-model="form.salaryend"
+          placeholder="Salary End"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-postjob-desc" label-for="postjobinput-4">
+        <b-form-textarea
+          id="postjobinput-4"
           v-model="form.jobdesc"
           placeholder="Job Description"
           rows="7"
           max-rows="10"
           required
         ></b-form-textarea>
+      </b-form-group>
+
+      <b-form-group id="input-postjob-jobexpirydate" label-for="postjobinput-5">
+        <b-form-datepicker id="jobexpirydate-datepicker" v-model="jobexpirydate" class="mb-2" />
+        <p>Job Date of Expiry: '{{ jobexpirydate }}'</p>
       </b-form-group>
 
       <div class="text-center">
@@ -44,9 +58,11 @@
 export default {
   data() {
     return {
+      jobexpirydate:'',
       form: {
         jobtitle: '',
-        jobsalary: '',
+        salaryend: '',
+        salaryend: '',
         jobdesc: '',
       }
     }

@@ -11,7 +11,7 @@
               <PostJobModal />
             </b-modal>
             <h5 class="font-weight-bold mt-4">Your Posted Jobs</h5>
-            <EmployerPostedJobList />
+            <CompanyPostedJobList />
           </div>
         </b-col>
         <b-col>

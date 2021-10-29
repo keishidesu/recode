@@ -3,7 +3,7 @@
     <Nav :class="bgcolor" />
     <PageHeader :header="header" :class="bgcolor" />
     <PageBody :body="body">
-      <EmployeeList />
+      <DeveloperList />
     </PageBody>
   </div>
 </template>
