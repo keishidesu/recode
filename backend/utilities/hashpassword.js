@@ -15,9 +15,9 @@ async function hashPassword(password) {
 }
 
 function compareHashPassword(password, passwordHash) {
-    bcrypt.compare(password, passwordHash, function(err, result) {
+    bcrypt.compare(password, passwordHash, function (err, result) {
         // result == true
-        return result;  // true/false
+        return result; // true/false
     });
 }
 

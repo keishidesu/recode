@@ -50,7 +50,7 @@ var adminRouter = require('./routers/admin');
 
 
 // Configure middlewares
-const oneDay = 1000 * 60 * 60 * 24;  // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
+const oneDay = 1000 * 60 * 60 * 24; // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
   cookie: {
@@ -68,66 +68,25 @@ app.use(express.urlencoded({
 app.use(cookieParser()); // Enable server to parse cookies
 app.use(upload()); // Support file uploads
 
-// app.use(function(req,res,next){
-//   var _send = res.send;
-//   var sent = false;
-//   res.send = function(data){
-//       if(sent) return;
-//       _send.bind(res)(data);
-//       sent = true;
-//   };
-//   next();
-// });
-
-/* Error handler middleware */
-// app.use((err, req, res, next) => {
-//   const statusCode = err.statusCode || 500;
-//   console.error(err.message, err.stack);
-//   res.status(statusCode).json({'message': err.message});
-//   return;
-// });
-
 // Use routers
 app.use('/developer', sessionMiddleware, developerRouter);
 app.use('/company', sessionMiddleware, companyRouter);
 app.use('/admin', sessionMiddleware, adminRouter);
-
-// app.use('/companylist', companyListRoute)
-
-// app.use('/exploreJobs', explorejobsRoute)
-
-// app.use('/developerList', developerListRouter)
 
 // Default route for backend
 app.get('/', (req, res) => {
   res.status(200).send('Welcome to re:code backend');
 })
 
-/**
- * @swagger
- * /testing:
- *  get:
- *    description: Used to show welcome messages
- *    response:
- *      '200':
- *        description: Done asdasdasdsad
- * 
- */
-app.get('/testing', (req, res) => {
-  res.status(200).send('Welcome to testing')
-})
-
-
 /* GENERAL ENDPOINTS, APPLICABLE FOR ALL USERS */
 
 // Get list of companies
 app.get('/companylist', (req, res) => {
-  let sql = 'SELECT C.name AS companyName, C.email AS companyEmail, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath FROM Company C, CompanyProfile P';
-  let query = connection.query(sql, (err, results) => {
+  let sql = 'SELECT C.name AS companyName, C.email AS companyEmail, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath FROM Company C, CompanyProfile P, CompanyRegistration R WHERE C.id = P.company_id AND C.id = R.company_id AND R.status = ?';
+  let query = connection.query(sql, ['APPROVED'], (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.status(200).json(results);
-    return
+    return res.status(200).json(results);
   });
 });
 
@@ -137,8 +96,7 @@ app.get('/developerlist', (req, res) => {
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.status(200).json(results);
-    return
+    return res.status(200).json(results);
   });
 });
 
@@ -148,8 +106,7 @@ app.get('/joblistings', (req, res) => {
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.status(200).json(results);
-    return
+    return res.status(200).json(results);
   });
 });
 

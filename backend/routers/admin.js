@@ -131,67 +131,68 @@ adminRouter.get('/companyregistrations', function (req, res) {
 });
 
 // Route for admin to update a specific company registrations
-adminRouter.put('/companyregistration', 
-bodyVal('companyRegistrationID').isLength({
-    min: 30,
-    max: 40
-}),
-bodyVal('status').isLength({
-    min: 2,
-    max: 100
-}),
-bodyVal('rejectionReason').isLength({
-    max: 100
-}), function (req, res) {
-    // Expects the companyRegistrationID, status, rejectionReason
+adminRouter.put('/companyregistration',
+    bodyVal('companyRegistrationID').isLength({
+        min: 30,
+        max: 40
+    }),
+    bodyVal('status').isLength({
+        min: 2,
+        max: 100
+    }),
+    bodyVal('rejectionReason').isLength({
+        max: 100
+    }),
+    function (req, res) {
+        // Expects the companyRegistrationID, status, rejectionReason
 
-    const errors = validationResult(req);
+        const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            'message': 'Failed to update details for a specific company registration',
-            'errors': errors.array(),
-            'errorStatus': true
-        });
-    }
-
-    if (!req.body.companyRegistrationID || !req.body.status || !req.body.rejectionReason) {
-        return res.status(400).json({
-            'message': 'Update details for company registration are incomplete, please try again with the fields [companyRegistrationID, status, rejectionReason]',
-            'errorStatus': true
-        });
-    }
-
-    console.log(req.session);
-    if (!(req.session.role == 'ADMIN' && req.session.authenticated)) {
-        return res.status(403).json({
-            'message': 'Unauthorized to perform this action',
-            'errorStatus': true
-        });
-    }
-
-    let userid = req.session.userid;
-
-    try {
-        let sql = 'UPDATE CompanyRegistration SET reviewed_admin = ?, status = ? rejection_reason = ? WHERE id = ?'; // AND D.password_hash = ?
-        let query = connection.query(sql, [userid, req.body.status, req.body.rejectionReason, req.body.companyRegistrationID], (err, result) => {
-            if (err) {
-                throw err;
-            }
-            return res.status(200).json({
-                'message': `Successfully updated company registration for registration ID ${req.body.companyRegistrationID}`,
-                'inserted': result,
-                'errorStatus': false
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                'message': 'Failed to update details for a specific company registration',
+                'errors': errors.array(),
+                'errorStatus': true
             });
-        });
-    } catch (err) {
-        return res.status(400).json({
-            'message': 'An error occured',
-            'error': err,
-            'errorStatus': true
-        });
-    }
-});
+        }
+
+        if (!req.body.companyRegistrationID || !req.body.status || !req.body.rejectionReason) {
+            return res.status(400).json({
+                'message': 'Update details for company registration are incomplete, please try again with the fields [companyRegistrationID, status, companyID]',
+                'errorStatus': true
+            });
+        }
+
+        console.log(req.session);
+        if (!(req.session.role == 'ADMIN' && req.session.authenticated)) {
+            return res.status(403).json({
+                'message': 'Unauthorized to perform this action',
+                'errorStatus': true
+            });
+        }
+
+        let userid = req.session.userid;
+
+        try {
+            let sql = 'UPDATE CompanyRegistration SET reviewed_admin = ?, status = ? rejection_reason = ? WHERE id = ?'; // AND D.password_hash = ?
+            let query = connection.query(sql, [userid, req.body.status, req.body.rejectionReason, req.body.companyRegistrationID], (err, result) => {
+                if (err) {
+                    throw err;
+                }yID
+                return res.status(200).json({
+                    'message': `Successfully updated company registration for registration ID ${req.body.companyRegistrationID}`,
+                    'inserted': result,
+                    'errorStatus': false
+                });
+            });
+        } catch (err) {
+            return res.status(400).json({
+                'message': 'An error occured',
+                'error': err,
+                'errorStatus': true
+            });
+        }
+    });
 
 // Route for admin to logout
 adminRouter.get('/logout', function (req, res, next) {

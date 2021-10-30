@@ -146,7 +146,7 @@ developerRouter.post('/register',
         min: 6,
         max: 50
     }),
-    bodyVal('contact_number').isNumeric({
+    bodyVal('contact_number').isNumeric().isLength({
         min: 10,
         max: 15
     }),
@@ -332,6 +332,8 @@ developerRouter.put('/profile',
             ...req.body
         }
 
+        console.log(`inputFields: ${inputFields}`);
+
         if (!inputFields.developerID) {
             return res.status(400).json({
                 'message': 'Developer ID is not passed in',
@@ -371,7 +373,7 @@ developerRouter.put('/profile',
 
 // Endpoint to update a developer's resume PDF
 developerRouter.post('/resume', async (req, res) => {
-    let developerID = req.params.developerID;
+    let developerID = req.body.developerID;
     if (!(req.session.authenticated && req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
         return res.status(403).json({
             'message': 'Unauthorized to perform this action',
@@ -429,7 +431,7 @@ developerRouter.post('/resume', async (req, res) => {
 
 // Endpoint to update a developer's profilephoto
 developerRouter.post('/profilephoto', async (req, res) => {
-    let developerID = req.params.developerID;
+    let developerID = req.body.developerID;
     // Expects: developerID, profile photo in jpeg/png/jpg
     if (!(req.session.authenticated && req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
         return res.status(403).json({
@@ -452,7 +454,7 @@ developerRouter.post('/profilephoto', async (req, res) => {
         });
     }
 
-    const profilePhotoPath = `./developerfiles/resume/${profilePhoto.name}`;
+    const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
     if (fs.existsSync(profilePhotoPath)) {
         return res.status(400).json({
             'message': 'The profile photo file already exists, please upload another file of a different name',
@@ -563,10 +565,10 @@ developerRouter.post('/application',
         }
 
         let applicationDetails = {
-            'developerID': req.params.developerID,
+            'developerID': req.body.developerID,
             'id': uuidv4(),
-            'jobListingID': req.params.jobListingID,
-            'description': req.params.description,
+            'jobListingID': req.body.jobListingID,
+            'description': req.body.description,
             'status': 'PENDING',
             'created_at': moment().format('YYYY-MM-DD HH:mm:ss')
         }
