@@ -15,6 +15,8 @@ const connection = require('./database/connection'); // Database connection
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const upload = require('express-fileupload');
+const { bodyVal, validationResult } = require('express-validator');  // TODO: express validator
+
 
 // Set Swagger configurations
 const swaggerOptions = {
