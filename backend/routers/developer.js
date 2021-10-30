@@ -17,9 +17,9 @@ const {
 } = require('console');
 const saltRounds = parseInt(process.env.SALT_ROUNDS);
 const {
-    bodyVal,
+    body: bodyVal,
     validationResult
-} = require('express-validator'); // TODO: express validator
+} = require('express-validator');
 
 
 // Store country details in memory
@@ -105,6 +105,10 @@ developerRouter.post('/login',
                 }
                 const compared = await bcrypt.compare(password, results[0].password_hash).then((result) => {
                         if (result == true) {
+                            req.session.authenticated = true;
+                            req.session.role = 'DEVELOPER';
+                            // req.session.
+                            console.log(results);
                             return res.status(200).json({
                                 'message': 'Login success!',
                                 'errorStatus': false

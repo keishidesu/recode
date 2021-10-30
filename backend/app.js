@@ -15,7 +15,10 @@ const connection = require('./database/connection'); // Database connection
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const upload = require('express-fileupload');
-const { bodyVal, validationResult } = require('express-validator');  // TODO: express validator
+const {
+  body: bodyVal,
+  validationResult
+} = require('express-validator'); // TODO: express validator
 
 
 // Set Swagger configurations
@@ -33,7 +36,7 @@ const swaggerOptions = {
   apis: ['app.js', 'routers/*.js']
 }
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);  // Initialize swagger docs with configurations above
+const swaggerDocs = swaggerJsDoc(swaggerOptions); // Initialize swagger docs with configurations above
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 // Import routers
@@ -42,25 +45,29 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 // var explorejobsRoute = require('./routers/exploreJobs.js')(connection);
 // var developerListRouter = require('./routers/developerListRouter.js')(connection);
 var developerRouter = require('./routers/developer');
-
+var companyRouter = require('./routers/company');
+var adminRouter = require('./routers/admin');
 
 
 
 
 // Configure middlewares
-const oneDay = 1000 * 60 * 60 * 24;
-app.use(session({
+const oneDay = 1000 * 60 * 60 * 24;  // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
+const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
-  cookie: {maxAge: oneDay},
+  cookie: {
+    maxAge: oneDay
+  },
   resave: false,
   saveUninitialized: true
-}))
+});
+app.use(sessionMiddleware)
 app.use(express.json()); // parse JSON data
 app.use(express.urlencoded({
   extended: true
 })); // parse urlencoded request body
-app.use(cookieParser());  // Enable server to parse cookies
-app.use(upload());  // Support file uploads
+app.use(cookieParser()); // Enable server to parse cookies
+app.use(upload()); // Support file uploads
 
 // app.use(function(req,res,next){
 //   var _send = res.send;
@@ -82,7 +89,9 @@ app.use(upload());  // Support file uploads
 // });
 
 // Use routers
-app.use('/developer', developerRouter)
+app.use('/developer', sessionMiddleware, developerRouter);
+app.use('/company', sessionMiddleware, companyRouter);
+app.use('/admin', sessionMiddleware, adminRouter);
 
 // app.use('/companylist', companyListRoute)
 
@@ -92,7 +101,7 @@ app.use('/developer', developerRouter)
 
 // Default route for backend
 app.get('/', (req, res) => {
-  res.status(200).send('Welcome to re:code backend')
+  res.status(200).send('Welcome to re:code backend');
 })
 
 /**
@@ -109,13 +118,16 @@ app.get('/testing', (req, res) => {
   res.status(200).send('Welcome to testing')
 })
 
+
+/* GENERAL ENDPOINTS, APPLICABLE FOR ALL USERS */
+
 // Get list of companies
 app.get('/companylist', (req, res) => {
   let sql = 'SELECT C.name, C.email, P.id AS profile_id, P.tagline, P.description, P.website, P.profile_photo_filepath FROM company C, companyprofile P';
-  let query = connection.query(sql,(err,results) => {
-    if(err) throw err;
+  let query = connection.query(sql, (err, results) => {
+    if (err) throw err;
     console.log(results);
-        res.send(results);
+    res.send(results);
     return
   });
 });
@@ -123,10 +135,10 @@ app.get('/companylist', (req, res) => {
 // Get list of developers
 app.get('/developerlist', (req, res) => {
   let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
-  let query = connection.query(sql,(err,results) => {
-    if(err) throw err;
+  let query = connection.query(sql, (err, results) => {
+    if (err) throw err;
     console.log(results);
-        res.send(results);
+    res.send(results);
     return
   });
 });
@@ -135,10 +147,10 @@ app.get('/developerlist', (req, res) => {
 // Get list of developers
 app.get('/developerlist', (req, res) => {
   let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
-  let query = connection.query(sql,(err,results) => {
-    if(err) throw err;
+  let query = connection.query(sql, (err, results) => {
+    if (err) throw err;
     console.log(results);
-        res.send(results);
+    res.send(results);
     return
   });
 });
@@ -146,53 +158,58 @@ app.get('/developerlist', (req, res) => {
 // Get list of developers
 app.get('/developerlist', (req, res) => {
   let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
-  let query = connection.query(sql,(err,results) => {
-    if(err) throw err;
+  let query = connection.query(sql, (err, results) => {
+    if (err) throw err;
     console.log(results);
-        res.send(results);
+    res.send(results);
     return
   });
 });
 
-app.get('/joblistings',(req,res)=>{
-//TODO: include job listing status after we almost done
-let sql = 'SELECT J.id AS joblisting_id, J.title AS joblisting_title, J.job_description, J.salary_start, J.salary_end, J.created_at, J.expiration_date, P.id AS companyprofile_id, P.tagline AS company_tagline, P.description AS companydescription, P.website AS companywebsite, P.profile_photo_filepath AS company_profile_photo_filepath, C.name AS company_name, C.username AS company_username, C.email AS company_email FROM joblisting J, company C, companyprofile P WHERE J.company_id = C.id AND C.id = P.company_id';
-let query = connection.query(sql,(err,results) => {
-  if(err) throw err;
-  console.log(results);
-      res.send(results);
-  return
+app.get('/joblistings', (req, res) => {
+  let sql = 'SELECT J.id AS joblisting_id, J.title AS joblisting_title, J.job_description, J.salary_start, J.salary_end, J.created_at, J.expiration_date, J.active, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoPath, C.name AS companyName, C.username AS companyUsername, C.email AS companyEmail FROM joblisting J, company C, companyprofile P WHERE J.company_id = C.id AND C.id = P.company_id';
+  let query = connection.query(sql, (err, results) => {
+    if (err) throw err;
+    console.log(results);
+    res.send(results);
+    return
   });
 });
 
-app.get('/developer/:username',(req,res)=>{
+app.get('/developer/:username', (req, res) => {
   let username = req.params.username;
   let sql = 'SELECT D.first_name, D.last_name, D.username, D.email, D.registered_at, P.professional_title, P.description, P.resume_filepath, P.profile_photo_filepath, P.website, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.username = ?;';
-  let query = connection.query(sql,[username], (err,results) => {
-    if(err) throw err;
+  let query = connection.query(sql, [username], (err, results) => {
+    if (err) throw err;
     // console.log(results);
     if (results.length == 0) {
-      return res.status(404).json({'msg': `No developer with username '${username}' found in re:code.`, 'status': 'ERROR'});
+      return res.status(404).json({
+        'msg': `No developer with username '${username}' found in re:code.`,
+        'status': 'ERROR'
+      });
     } else {
       return res.status(200).json(results[0])
     }
-    });
+  });
 });
 
 
 // Get specific company profile by username
-app.get('/company/:username',(req,res)=>{
+app.get('/company/:username', (req, res) => {
   let username = req.params.username;
-  let sql = 'SELECT C.name AS company_name, C.username, C.email, C.registered_at, P.id AS companyprofile_id, P.tagline AS company_tagline, P.description AS company_description, P.website AS company_website, P.profile_photo_filepath AS company_profile_photo_filepath, P.description, P.profile_photo_filepath, P.website FROM Company C, CompanyProfile P WHERE C.id = P.company_id  AND C.username = ?;';
-  let query = connection.query(sql,[username], (err,results) => {
-    if(err) throw err;
+  let sql = 'SELECT C.name AS companyName, C.username, C.email, C.registered_at, P.id AS companyprofile_id, P.tagline AS companyTagline, P.description AS company_description, P.website AS company_website, P.profile_photo_filepath AS company_profile_photo_filepath, P.description, P.profile_photo_filepath, P.website FROM Company C, CompanyProfile P WHERE C.id = P.company_id  AND C.username = ?;';
+  let query = connection.query(sql, [username], (err, results) => {
+    if (err) throw err;
     // console.log(results);
     if (results.length == 0) {
-      return res.status(404).json({'msg': `No company with username '${username}' found in re:code.`, 'status': 'ERROR'});
+      return res.status(404).json({
+        'msg': `No company with username '${username}' found in re:code.`,
+        'status': 'ERROR'
+      });
     } else {
       return res.status(200).json(results[0])
     }
-    });
+  });
 });
 
 // Listen at stated port
