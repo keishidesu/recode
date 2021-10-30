@@ -2,14 +2,15 @@ require('dotenv').config(); // Load env variables that are set in the .env file 
 
 // Configuration variables
 const express = require('express');
+const app = express();
+const port = process.env.BACKEND_PORT || 9000;
+
 const mysql = require('mysql');
 const session = require('express-session');
 const cookieParser = require("cookie-parser");
 const {
   DEC8_BIN
 } = require('mysql/lib/protocol/constants/charsets');
-const app = express();
-const port = process.env.BACKEND_PORT || 9000;
 const connection = require('./database/connection'); // Database connection
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -38,7 +39,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 // var companyListRoute = require('./routers/companyListRoute')(connection);
 // var explorejobsRoute = require('./routers/exploreJobs.js')(connection);
 // var developerListRouter = require('./routers/developerListRouter.js')(connection);
-var developerRouter = require('./routers/developer')(connection);
+var developerRouter = require('./routers/developer');
 
 
 
