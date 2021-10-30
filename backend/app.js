@@ -86,7 +86,6 @@ app.get('/testing', (req, res) => {
   res.status(200).send('Welcome to testing')
 })
 
-<<<<<<< HEAD
 // Get list of companies
 app.get('/companylist', (req, res) => {
   let sql = 'SELECT C.name, C.email, P.id AS profile_id, P.tagline, P.description, P.website, P.profile_photo_filepath FROM company C, companyprofile P';
@@ -172,13 +171,6 @@ app.get('/company/:username',(req,res)=>{
     }
     });
 });
-=======
-app.post('/name', (req, res) => {
-  let name = req.body.name;
-  res.status(200).send(`The name passed in is ${name}`)
-})
->>>>>>> 6c048d34f35d1d1d6dc0b4a4e192263c2f421c6d
-
 
 // Listen at stated port
 app.listen(port, () => {
