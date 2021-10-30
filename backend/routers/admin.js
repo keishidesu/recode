@@ -59,7 +59,7 @@ adminRouter.post('/login',
             })
         }
 
-        let sql = 'SELECT A.id, A.first_name, A.last_name, A.email, A.registered_at, FROM Admin A WHERE A.email = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT A.id, A.first_name, A.last_name, A.email, A.registered_at, A.password_hash FROM Admin A WHERE A.email = ?'; // AND D.password_hash = ?
         try {
             let query = connection.query(sql, [loginDetails.email], async (err, results) => {
                 if (err) throw err;
