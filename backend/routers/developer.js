@@ -5,7 +5,7 @@ const {hashPassword, compareHashPassword} = require('../utilities/hashPassword.j
 const connection = require('../database/connection');  // Database connection
 const bcrypt = require('bcrypt');
 const moment = require('moment');
-
+const fs = require('fs');
 
 // Endpoint to get test message
 developerRouter.get('/', async (req, res) => {
@@ -54,56 +54,250 @@ developerRouter.post('/login', async (req, res) => {
     });
 })
 
-// Endpoint to create a new developer account
+// Endpoint to register a new developer account
 developerRouter.post('/register', (req, res) => {
     let password = req.body.password;
+    password = bcrypt.hashSync(password, 10);
     let developer = {
         'id': uuidv4(),
+        'profile_id': uuidv4(),
         'username': req.body.username,
         'first_name': req.body.first_name,
         'last_name': req.body.last_name,
         'email': req.body.email,
         'contact_number': req.body.contact_number,
-        'password': '13',
-        'registered_at': moment().format('YYYY-MM-DD HH:mm:ss'),
-        'country_id': req.body.country_id,
         'professional_title': req.body.professional_title,
+        'resume_filepath': '',
+        'profile_photo_filepath': '',
+        'country_id': req.body.country_id,
         'website': req.body.website,
-    }
-    // 'resume_filepath': req.body.resume_filepath
-    // 'last_name': hashPassword(req.body.password)
-
+        'password': password,
+        'registered_at': moment().format('YYYY-MM-DD HH:mm:ss')
+    };
     // console.log(JSON.stringify(developer));
-    // return res.json(developer);
 
-    if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !developer.password || !developer.registered_at || !developer.country_id || !developer.professional_title || !developer.country_id) {
-        return res.status(404).json({'msg': 'Developer registration details are incomplete, please retry registration again'})
+    if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !developer.password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
+        return res.status(404).json({'message': 'Developer registration details are incomplete, please retry registration again', 'errorStatus': true});
     }
 
-    let sql = 'INSERT INTO Developer(id, first_name, username, last_name, email, contact_number, password_hash, registered_at)';  // AND D.password_hash = ?
-    let query = connection.query(sql, [loginDetails.email], async (err,results) => {
-      if(err) throw err;
-      if (results.length == 0) {
-          return res.status(404).json({'msg': 'Login details are invalid, email for this user does not exist'})
-      }
-    //   console.log(`HASH: ${JSON.stringify(results[0])}`)
-
-      const compared = await bcrypt.compare(password,results[0].password_hash).then((result)=>{
-        if (result == true) {
-            return res.status(200).json({'msg': 'Login success!'});
-        } else {
-            return res.status(404).json({'msg': 'Login failed, login details are invalid'});
+    // Check if country ID is valid
+    let invalidCountry = true;
+    let sql = 'SELECT * FROM Country C WHERE C.id = ?';
+    let query = connection.query(sql, [developer.country_id], (err, results) => {
+      if (err) {
+        throw err;
+        // return res.status(404).json({'message': 'An error occured, please try again', 'error': err, 'errorStatus': true});
+      } else {
+        if (results.length == 0) {
+            // console.log(true);
+            // // return res.send('nthing here');
+            // // return callback(res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true}));
+            // callback(null, res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true}));
+            res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true});
+            return
+            // return false;
         }
-      })
-      .catch((err)=>console.error(err))
+      }
+    //   console.log(`results lenght: ${results.length}`);
+
+    });
+    // console.log(`query - ${JSON.stringify(query)}`);
+    if (query == false) {
+        console.log('invalid country');
+        return res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true});
+    }
+
+    const resume = req.files.resume;
+    const profilePhoto = req.files.profilephoto;
+
+    if (!resume || !profilePhoto) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files', 'errorStatus': true});
+    }
+
+    const resumePath = `./developerfiles/resume/${resume.name}`;
+    const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
+
+    if (fs.existsSync(resumePath) || fs.existsSync(profilePhotoPath)) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name', 'errorStatus': true});
+    }
+
+    let resumeFailed = false;
+    resume.mv(resumePath, function(err) {
+        if (err) {
+            resumeFailed = true;
+        }
     });
 
-    return res.status(200).json({'msg': 'New user created', 'user': JSON.stringify(user)});
-})
+    if (resumeFailed == true) {
+        return res.status(404).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
+    }
+
+    let profPhotoFailed = false;
+    profilePhoto.mv(profilePhotoPath, function(err) {
+        if (err) {
+            profPhotoFailed = true;
+        }
+    });
+
+    if (profPhotoFailed == true) {
+        return res.status(404).json({'message': 'An error occured', 'errorStatus': true});
+    }
+
+    // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
+    
+    // Save filepaths to developer object
+    developer['resume_filepath'] = resumePath;
+    developer['profile_photo_filepath'] = profilePhotoPath;
+
+    let developerInsertFailed = false;
+    sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
+    query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err,result) => {
+      if (err) {
+        developerInsertFailed = true;
+        throw err;
+      }
+    });
+    
+    if (developerInsertFailed == true) {
+        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
+    }
+
+    let developerProfFailed = false;
+    sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
+    query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err,result) => {
+      if (err) {
+        developerProfFailed = true;
+        throw err;
+      }
+    });
+
+    if (developerProfFailed == true) {
+        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
+    }
+
+    return res.status(200).json({'message': 'Successful registration, created new developer account', 'developer': developer, 'errorStatus': true});
+});
+
+// Endpoint to update a developer profile account
+developerRouter.put('/asdasd', async (req, res) => {
+    // TODO: 
+    let password = req.body.password;
+    password = await hashPassword(password);
+    let developer = {
+        'id': uuidv4(),
+        'profile_id': uuidv4(),
+        'username': req.body.username,
+        'first_name': req.body.first_name,
+        'last_name': req.body.last_name,
+        'email': req.body.email,
+        'contact_number': req.body.contact_number,
+        'professional_title': req.body.professional_title,
+        'resume_filepath': '',
+        'profile_photo_filepath': '',
+        'country_id': req.body.country_id,
+        'website': req.body.website,
+        'password': req.body.password,
+        'registered_at': moment().format('YYYY-MM-DD HH:mm:ss')
+    };
+
+    // Check if country ID is valid
+    let sql = 'SELECT C.name FROM Country C';
+    let query = connection.query(sql, (err,results) => {
+      if (err) {
+        return res.status(404).json({'message': 'An error occured, please try again', 'error': err, 'errorStatus': true});
+      }
+
+      if (results.length == 0) {
+        return res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'error': err, 'errorStatus': true});
+      }
+    });
+
+    const resume = req.files.resume;
+    const profilePhoto = req.files.profilephoto;
+
+    if (!resume || !profilePhoto) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files', 'errorStatus': true});
+    }
+
+    const resumePath = `./developerfiles/resume/${resume.name}`;
+    const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
+
+    if (fs.existsSync(resumePath) || fs.existsSync(profilePhotoPath)) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name', 'errorStatus': true});
+    }
+
+    if (resume.mimetype != 'application/pdf' || profilePhoto.mimetype != 'image/png' || profilePhoto.mimetype != 'image/jpeg') {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file type is not suitable, please upload the resume in PDF and the profile photo in either JPEG/JPG or PNG', 'errorStatus': true});
+    }
+
+    resume.mv(resumePath, function(err) {
+        if (err) {
+            return res.status(404).json({'message': 'An error occured', 'error': err, 'errorStatus': true});
+        }
+    })
+
+    profilePhoto.mv(profilePhotoPath, function(err) {
+        if (err) {
+            return res.status(404).json({'message': 'An error occured', 'error': err, 'errorStatus': true});
+        }
+    })
+
+    // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
+    
+    // Save filepaths to developer object
+    developer['resume_filepath'] = resumePath;
+    developer['profile_photo_filepath'] = profilePhotoPath;
+
+    if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !developer.password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
+        return res.status(404).json({'message': 'Developer registration details are incomplete, please retry registration again', 'errorStatus': true})
+    }
+
+    sql = 'INSERT INTO Developer(id, first_name, username, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
+    query = connection.query(sql, [developer.id, developer.first_name, developer.username, developer.last_name, developer.email, developer.password_hash, developer.registered_at], (err,result) => {
+      if (err) {
+        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'error': err, 'errorStatus': true})
+      }
+    });
+
+    sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_tile, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
+    query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err,result) => {
+      if (err) {
+        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'error': err, 'errorStatus': true})
+      }
+    });
+
+    return res.status(200).json({'message': 'Successful registration, created new developer account', 'developer': developer, 'errorStatus': true});
+});
 
 developerRouter.post('/upload', (req, res) => {
-    console.log(req.files.foo); // the uploaded file object
-    return res.send(req.files.foo);
+    const resume = req.files.resume;
+    const profilePhoto = req.files.profilephoto;
+
+    if (!resume || !profilePhoto) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files', 'errorStatus': true});
+    }
+
+    const resumePath = `./developerfiles/resume/${resume.name}`;
+    const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
+
+
+    if (fs.existsSync(resumePath) || fs.existsSync(profilePhotoPath)) {
+        return res.status(404).json({'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name', 'errorStatus': true});
+    }
+
+    resume.mv(resumePath, function(err) {
+        if (err) {
+            return res.status(404).json({'message': 'An error occured', 'error': err, 'errorStatus': true});
+        }
+    })
+
+    profilePhoto.mv(profilePhotoPath, function(err) {
+        if (err) {
+            return res.status(404).json({'message': 'An error occured', 'error': err, 'errorStatus': true});
+        }
+    })
+
+    return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
 })
 
 module.exports = function(connection) {
