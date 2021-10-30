@@ -93,3 +93,11 @@ html body {
   border-color: #F38484;
   border-radius: 1em;
 }
+
+.nf-button-copy {
+  color: black;
+  font-weight: bold;
+  background-color: #93cdf0;
+  border-color: #93cdf0;
+  border-radius: 0.7em;
+}
