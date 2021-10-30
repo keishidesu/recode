@@ -17,6 +17,7 @@ const {
 } = require('console');
 const saltRounds = parseInt(process.env.SALT_ROUNDS);
 
+
 // Store country details in memory
 let countries = [];
 
@@ -50,18 +51,6 @@ let getCountryQuery = connection.query(getCountrySql, (err, results) => {
 
 /* START WRITING RELEVANT ENDPOINTS - DEVELOPER ACCOUNTS*/
 
-// Endpoint to get test message
-developerRouter.get('/', async (req, res) => {
-    // TODO: this is just a basic testing route, clean this after usage
-    let passw = '1234';
-    let pp = await hashPassword(passw, saltRounds);
-    console.log(hashPassword(passw));
-    return res.status(200).json({
-        'message': 'Welcome to the developers /GET route',
-        'TestPasswordHash': pp
-    });
-})
-
 // Endpoint to login for this developer
 developerRouter.post('/login', async (req, res) => {
     /* 
@@ -76,7 +65,7 @@ developerRouter.post('/login', async (req, res) => {
         'email': req.body.email,
         'password': password
     }
-    console.log(loginDetails);
+    // console.log(loginDetails);
     if (!loginDetails.email || !loginDetails.password) {
         return res.status(400).json({
             'message': 'Login details are incomplete, please retry login',
@@ -85,29 +74,37 @@ developerRouter.post('/login', async (req, res) => {
     }
 
     let sql = 'SELECT D.id, D.first_name, D.last_name, D.email, D.contact_number, D.registered_at, D.password_hash FROM Developer D WHERE D.email = ?'; // AND D.password_hash = ?
-    let query = connection.query(sql, [loginDetails.email], async (err, results) => {
-        if (err) throw err;
-        if (results.length == 0) {
-            return res.status(400).json({
-                'message': 'Login details are invalid, email for this user does not exist',
-                'errorStatus': true
-            })
-        }
-        const compared = await bcrypt.compare(password, results[0].password_hash).then((result) => {
-                if (result == true) {
-                    return res.status(200).json({
-                        'message': 'Login success!',
-                        'errorStatus': false
-                    });
-                } else {
-                    return res.status(400).json({
-                        'message': 'Login failed, login details are invalid',
-                        'errorStatus': true
-                    });
-                }
-            })
-            .catch((err) => console.error(err))
-    });
+    try {
+        let query = connection.query(sql, [loginDetails.email], async (err, results) => {
+            if (err) throw err;
+            if (results.length == 0) {
+                return res.status(400).json({
+                    'message': 'Login details are invalid, email for this user does not exist',
+                    'errorStatus': true
+                })
+            }
+            const compared = await bcrypt.compare(password, results[0].password_hash).then((result) => {
+                    if (result == true) {
+                        return res.status(200).json({
+                            'message': 'Login success!',
+                            'errorStatus': false
+                        });
+                    } else {
+                        return res.status(400).json({
+                            'message': 'Login failed, login details are invalid',
+                            'errorStatus': true
+                        });
+                    }
+                })
+                .catch((err) => console.error(err))
+        });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 })
 
 // Endpoint to register a new developer account
@@ -177,47 +174,55 @@ developerRouter.post('/register', async (req, res) => {
         });
     }
 
-    resume.mv(resumePath, function (err) {
-        if (err) {
-            throw err;
-            // return res.status(400).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
-        }
-    });
-
-    profilePhoto.mv(profilePhotoPath, function (err) {
-        if (err) {
-            throw err;
-            // return res.status(400).json({'message': 'An error occured', 'errorStatus': true});
-        }
-    });
-
-    // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
-
-    // Save filepaths to developer object
-    developer['resume_filepath'] = resumePath;
-    developer['profile_photo_filepath'] = profilePhotoPath;
-
-    // Save to database
-    sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-    query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err, result) => {
-        if (err) {
-            throw err;
-            // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
-        }
-    });
-
-    sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-    query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err, result) => {
-        if (err) {
-            throw err;
-        } else {
-            return res.status(200).json({
-                'message': 'Successful registration, created new developer account',
-                'developer': developer,
-                'errorStatus': true
-            });
-        }
-    });
+    try {
+        resume.mv(resumePath, function (err) {
+            if (err) {
+                throw err;
+                // return res.status(400).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
+            }
+        });
+    
+        profilePhoto.mv(profilePhotoPath, function (err) {
+            if (err) {
+                throw err;
+                // return res.status(400).json({'message': 'An error occured', 'errorStatus': true});
+            }
+        });
+    
+        // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
+    
+        // Save filepaths to developer object
+        developer['resume_filepath'] = resumePath;
+        developer['profile_photo_filepath'] = profilePhotoPath;
+    
+        // Save to database
+        sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+        query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err, result) => {
+            if (err) {
+                throw err;
+                // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
+            }
+        });
+    
+        sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+        query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err, result) => {
+            if (err) {
+                throw err;
+            } else {
+                return res.status(200).json({
+                    'message': 'Successful registration, created new developer account',
+                    'developer': developer,
+                    'errorStatus': true
+                });
+            }
+        });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 });
 
 // Endpoint to update a developer profile account
@@ -237,17 +242,25 @@ developerRouter.put('/profile', async (req, res) => {
 
     let developerID = inputFields.developerID;
 
-    let sql = 'UPDATE DeveloperProfile SET country_id = ?, professional_title = ?, description = ?, website = ? WHERE developer_id = ?'; // AND D.password_hash = ?
-    let query = connection.query(sql, [inputFields.countryID, inputFields.professional_title, inputFields.description, inputFields.website, developerID], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        return res.status(200).json({
-            'message': 'Successfully updated profile',
-            'profile': inputFields,
-            'errorStatus': false
+    try {
+        let sql = 'UPDATE DeveloperProfile SET country_id = ?, professional_title = ?, description = ?, website = ? WHERE developer_id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [inputFields.countryID, inputFields.professional_title, inputFields.description, inputFields.website, developerID], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'message': 'Successfully updated profile',
+                'profile': inputFields,
+                'errorStatus': false
+            });
         });
-    });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 });
 
 // Endpoint to update a developer's resume PDF
@@ -275,21 +288,29 @@ developerRouter.post('/resume', async (req, res) => {
         });
     }
 
-    resume.mv(resumePath, function (err) {
-        if (err) {
-            throw err;
-        }
-    });
-    let sql = 'UPDATE DeveloperProfile SET resume_filepath = ? WHERE developer_id = ?'; // AND D.password_hash = ?
-    let query = connection.query(sql, [resumePath, req.body.developerID], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        return res.status(200).json({
-            'message': 'Successfully uploaded resume',
-            'errorStatus': false
+    try {
+        resume.mv(resumePath, function (err) {
+            if (err) {
+                throw err;
+            }
         });
-    });
+        let sql = 'UPDATE DeveloperProfile SET resume_filepath = ? WHERE developer_id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [resumePath, req.body.developerID], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'message': 'Successfully uploaded resume',
+                'errorStatus': false
+            });
+        });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 });
 
 // Endpoint to update a developer's profilephoto
@@ -317,21 +338,29 @@ developerRouter.post('/profilephoto', async (req, res) => {
         });
     }
 
-    profilePhoto.mv(profilePhotoPath, function (err) {
-        if (err) {
-            throw err;
-        }
-    });
-    let sql = 'UPDATE DeveloperProfile SET profile_photo_filepath = ? WHERE developer_id = ?'; // AND D.password_hash = ?
-    let query = connection.query(sql, [profilePhotoPath, req.body.developerID], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        return res.status(200).json({
-            'message': 'Successfully uploaded profile photo',
-            'errorStatus': false
+    try {
+        profilePhoto.mv(profilePhotoPath, function (err) {
+            if (err) {
+                throw err;
+            }
         });
-    });
+        let sql = 'UPDATE DeveloperProfile SET profile_photo_filepath = ? WHERE developer_id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [profilePhotoPath, req.body.developerID], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'message': 'Successfully uploaded profile photo',
+                'errorStatus': false
+            });
+        });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 });
 
 // Developer get their own job applications
@@ -339,16 +368,24 @@ developerRouter.get('/applications/:id', (req, res) => {
     // id indicates the developer id
     let developerID = req.params.id;
 
-    let sql = 'SELECT D.id AS developerID, J.id AS jobApplicationID, L.id AS jobListingID, J.description AS jobApplicationDescription, J.status AS jobApplicationStatus, J.created_at AS jobApplicationCreatedAt, L.title AS jobListingTitle, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreatedAt, L.expiration_date AS jobListingExpirationDate, L.active AS jobListingActiveStatus, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt FROM Developer D, JobApplication J, JobListing L, Company C WHERE D.id = J.developer_id AND J.job_listing_id = L.id AND L.company_id = C.id AND D.id = ?'; // AND D.password_hash = ?
-    let query = connection.query(sql, [developerID], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        return res.status(200).json({
-            'jobApplications': result,
-            'errorStatus': false
+    try {
+        let sql = 'SELECT D.id AS developerID, J.id AS jobApplicationID, L.id AS jobListingID, J.description AS jobApplicationDescription, J.status AS jobApplicationStatus, J.created_at AS jobApplicationCreatedAt, L.title AS jobListingTitle, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreatedAt, L.expiration_date AS jobListingExpirationDate, L.active AS jobListingActiveStatus, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt FROM Developer D, JobApplication J, JobListing L, Company C WHERE D.id = J.developer_id AND J.job_listing_id = L.id AND L.company_id = C.id AND D.id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [developerID], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'jobApplications': result,
+                'errorStatus': false
+            });
         });
-    });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 })
 
 // Developer create their own job applications
@@ -411,17 +448,25 @@ developerRouter.post('/country', (req, res) => {
         'name': name
     }
     countries.push(country);
-    let sql = 'INSERT INTO Country(id, name) VALUES (?, ?)';
-    let query = connection.query(sql, [country.id, country.name], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        return res.status(200).json({
-            'message': 'Successfully created a new country',
-            'country': country,
-            'errorStatus': false
+    try {
+        let sql = 'INSERT INTO Country(id, name) VALUES (?, ?)';
+        let query = connection.query(sql, [country.id, country.name], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'message': 'Successfully created a new country',
+                'country': country,
+                'errorStatus': false
+            });
         });
-    });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
 })
 
 module.exports = developerRouter;
