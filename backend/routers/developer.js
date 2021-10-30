@@ -261,8 +261,8 @@ developerRouter.post('/register',
             // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
 
             // Save filepaths to developer object
-            developer['resume_filepath'] = resumePath;
-            developer['profile_photo_filepath'] = profilePhotoPath;
+            developer.resume_filepath = resumePath;
+            developer.profile_photo_filepath = profilePhotoPath;
 
             // Save to database
             sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
@@ -561,8 +561,6 @@ developerRouter.post('/application',
                 'errorStatus': true
             });
         }
-
-
 
         let applicationDetails = {
             'developerID': req.params.developerID,

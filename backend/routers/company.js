@@ -59,9 +59,9 @@ companyRouter.post('/login',
             })
         }
 
-        let sql = 'SELECT C.id, C.name, C.email, C.registered_at, FROM Company C WHERE C.email = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT C.id, C.name, C.email, C.registered_at FROM Company C, CompanyRegistration R WHERE C.email = ? AND R.status = ?'; // AND D.password_hash = ?
         try {
-            let query = connection.query(sql, [loginDetails.email], async (err, results) => {
+            let query = connection.query(sql, [loginDetails.email, "APPROVED"], async (err, results) => {
                 if (err) throw err;
                 if (results.length == 0) {
                     return res.status(400).json({
@@ -143,72 +143,56 @@ companyRouter.post('/register',
         let company = {
             'id': uuidv4(),
             'profile_id': uuidv4(),
+            'registration_id': uuidv4(),
             'username': req.body.username,
             'name': req.body.name,
             'email': req.body.email,
-            'profile_photo_filepath': '',
             'website': req.body.website,
             'password': passwordHash,
             'registered_at': moment().format('YYYY-MM-DD HH:mm:ss'),
             'reviewed_admin': '',
             'status': 'PENDING',
             'rejection_reason': '',
-
+            'tagline': req.body.tagline,
+            'description': req.body.description,
+            'profile_photo_filepath': ''
         };
 
         // Check if fields needed are passed in
-        if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
+        if (!company.id || !company.profile_id || !company.username || !company.name || !company.email || company.profile_photo_filepath || !password || !company.website || !company.tagline || !company.description) {
             return res.status(400).json({
-                'message': 'Developer registration details are incomplete, please retry registration again',
+                'message': 'Company registration details are incomplete, please retry registration again',
                 'errorStatus': true
             });
         }
 
-        // Check if country ID passed in is valid
-        const validCountry = isValidCountry(developer.country_id);
-        if (!validCountry) {
-            return res.status(400).json({
-                'message': 'Invalid country ID, please try again with a valid country ID',
-                'errorStatus': true
-            });
-        }
-
-        // Perform checking on resume and profile photo, and save to relevant folders
-        const resume = req.files.resume;
+        // Perform checking on profile photo, and save to relevant folders
         const profilePhoto = req.files.profilephoto;
 
-        if (!resume || !profilePhoto) {
+        if (!profilePhoto) {
             return res.status(400).json({
-                'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files',
+                'message': 'The profile photo file is missing, please reupload the profile photo file',
                 'errorStatus': true
             });
         }
 
-        if (!resume.mimetype == 'application/pdf' || !profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
+        if (!profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
             return res.status(400).json({
-                'message': 'Either the resume file or the profile photo file is not in the correct file extension, please reupload the resume and profile photo files',
+                'message': 'The profile photo file is not in the correct file extension, please reupload the profile photo file',
                 'errorStatus': true
             });
         }
 
-        const resumePath = `./developerfiles/resume/${resume.name}`;
-        const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
+        const profilePhotoPath = `./companyfiles/profilephoto/${profilePhoto.name}`;
 
-        if (fs.existsSync(resumePath) || fs.existsSync(profilePhotoPath)) {
+        if (fs.existsSync(profilePhotoPath)) {
             return res.status(400).json({
-                'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name',
+                'message': 'The profile photo file already exists, please upload another file of a different name',
                 'errorStatus': true
             });
         }
 
         try {
-            resume.mv(resumePath, function (err) {
-                if (err) {
-                    throw err;
-                    // return res.status(400).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
-                }
-            });
-
             profilePhoto.mv(profilePhotoPath, function (err) {
                 if (err) {
                     throw err;
@@ -218,30 +202,33 @@ companyRouter.post('/register',
 
             // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
 
-            // Save filepaths to developer object
-            developer['resume_filepath'] = resumePath;
-            developer['profile_photo_filepath'] = profilePhotoPath;
+            // Save filepath to company object
+            company.profile_photo_filepath = profilePhotoPath;
 
             // Save to database
-            sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err, result) => {
+            sql = 'INSERT INTO Company(id, username, name, email, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            query = connection.query(sql, [company.id, company.username, company.name, company.email, company.password, company.registered_at], (err, result) => {
                 if (err) {
                     throw err;
                     // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
                 }
             });
 
-            sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err, result) => {
+            sql = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            query = connection.query(sql, [company.profile_id, company.id, company.tagline, developer.description, company.website, developer.profile_photo_filepath], (err, result) => {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            sql = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            query = connection.query(sql, [company.registration_id, company.id, company.reviewed_admin, company.status, company.rejection_reason], (err, result) => {
                 if (err) {
                     throw err;
                 } else {
-                    req.session.authenticated = true;
-                    req.session.role = 'DEVELOPER';
-                    req.session.userid = developer.id;
                     return res.status(200).json({
-                        'message': 'Successful registration, created new developer account',
-                        'developer': developer,
+                        'message': 'Successful registration, created new company account',
+                        'company': company,
                         'errorStatus': true
                     });
                 }

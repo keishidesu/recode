@@ -144,7 +144,7 @@ app.get('/developerlist', (req, res) => {
 
 
 app.get('/joblistings', (req, res) => {
-  let sql = 'SELECT J.id AS joblistingId, J.title AS joblistingTitle, J.job_description AS joblistingJobDescription, J.salary_start AS joblistingSalaryStart, J.salary_end AS joblistingSalaryEnd, J.created_at AS joblistingCreatedAt , J.expiration_date AS joblistingExpirationDate, J.active AS joblistingActive, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath, C.name AS companyName, C.username AS companyUsername, C.email AS companyEmail FROM JobListing J, Company C, CompanyProfile P WHERE J.company_id = C.id AND C.id = P.company_id';
+  let sql = 'SELECT J.id AS jobListingId, J.title AS jobListingTitle, J.job_description AS jobListingJobDescription, J.salary_start AS jobListingSalaryStart, J.salary_end AS jobListingSalaryEnd, J.created_at AS jobListingCreatedAt , J.expiration_date AS jobListingExpirationDate, J.active AS jobListingActive, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath, C.name AS companyName, C.username AS companyUsername, C.email AS companyEmail FROM JobListing J, Company C, CompanyProfile P WHERE J.company_id = C.id AND C.id = P.company_id';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
@@ -160,7 +160,7 @@ app.get('/developer/:username', (req, res) => {
     if (err) throw err;
     // console.log(results);
     if (results.length == 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         'message': `No developer with username '${username}' found in re:code.`,
         'errorStatus': true
       });
