@@ -226,7 +226,7 @@ developerRouter.post('/register',
             });
         }
 
-        if (!resume.mimetype == 'application/pdf' || !profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
+        if (!(resume.mimetype == 'application/pdf' || profilePhoto.mimetype == 'image/jpg' || profilePhoto.mimetype == 'image/jpeg' || profilePhoto.mimetype == 'image/png')) {
             return res.status(400).json({
                 'message': 'Either the resume file or the profile photo file is not in the correct file extension, please reupload the resume and profile photo files',
                 'errorStatus': true
@@ -447,7 +447,7 @@ developerRouter.post('/profilephoto', async (req, res) => {
             'errorStatus': true
         });
     }
-    if (!profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
+    if (!(profilePhoto.mimetype == 'image/jpg' || profilePhoto.mimetype == 'image/jpeg' || profilePhoto.mimetype == 'image/png')) {
         return res.status(400).json({
             'message': 'The profile photo file is not in the correct file extension, please reupload the profile photo file',
             'errorStatus': true

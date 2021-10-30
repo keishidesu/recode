@@ -60,7 +60,7 @@ companyRouter.post('/login',
             })
         }
 
-        let sql = 'SELECT C.id, C.name, C.email, C.registered_at FROM Company C, CompanyRegistration R WHERE C.email = ? AND R.status = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT C.id, C.name, C.email, C.registered_at, C.password_hash FROM Company C, CompanyRegistration R WHERE C.email = ? AND R.status = ?'; // AND D.password_hash = ?
         try {
             let query = connection.query(sql, [loginDetails.email, "APPROVED"], async (err, results) => {
                 if (err) throw err;
@@ -177,7 +177,7 @@ companyRouter.post('/register',
             });
         }
 
-        if (!profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
+        if (!(profilePhoto.mimetype == 'image/jpg' || profilePhoto.mimetype == 'image/jpeg' || profilePhoto.mimetype == 'image/png')) {
             return res.status(400).json({
                 'message': 'The profile photo file is not in the correct file extension, please reupload the profile photo file',
                 'errorStatus': true
@@ -262,14 +262,14 @@ companyRouter.post('/profilephoto', async (req, res) => {
             'errorStatus': true
         });
     }
-    if (!profilePhoto.mimetype == 'image/jpg' || !profilePhoto.mimetype == 'image/jpeg' || !profilePhoto.mimetype == 'image/png') {
+    if (!(profilePhoto.mimetype == 'image/jpg' || profilePhoto.mimetype == 'image/jpeg' || profilePhoto.mimetype == 'image/png')) {
         return res.status(400).json({
             'message': 'The profile photo file is not in the correct file extension, please reupload the profile photo file',
             'errorStatus': true
         });
     }
 
-    const profilePhotoPath = `./companyfiles/profile/${profilePhoto.name}`;
+    const profilePhotoPath = `./companyfiles/profilephoto/${profilePhoto.name}`;
     if (fs.existsSync(profilePhotoPath)) {
         return res.status(400).json({
             'message': 'The profile photo file already exists, please upload another file of a different name',
@@ -538,10 +538,7 @@ companyRouter.put('/joblisting',
 
 // Company get their own job listing
 companyRouter.get('/joblisting/:id',
-    bodyVal('id').isLength({
-        min: 30,
-        max: 40
-    }),
+
     (req, res) => {
         // id indicates the company id
         const errors = validationResult(req);
@@ -562,7 +559,7 @@ companyRouter.get('/joblisting/:id',
         }
 
         try {
-            let sql = 'SELECT D.first_name AS developerFirstName ,D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountr AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+            let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [companyID], (err, result) => {
                 if (err) {
                     throw err;
@@ -597,8 +594,6 @@ companyRouter.put('/jobapplication/:applicationID',
     }),
     function (req, res) {
         // Expects the applicationID, companyID, status
-        status
-
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {

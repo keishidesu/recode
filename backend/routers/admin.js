@@ -174,11 +174,11 @@ adminRouter.put('/companyregistration',
         let userid = req.session.userid;
 
         try {
-            let sql = 'UPDATE CompanyRegistration SET reviewed_admin = ?, status = ? rejection_reason = ? WHERE id = ?'; // AND D.password_hash = ?
+            let sql = 'UPDATE CompanyRegistration SET reviewed_admin = ?, status = ?, rejection_reason = ? WHERE id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [userid, req.body.status, req.body.rejectionReason, req.body.companyRegistrationID], (err, result) => {
                 if (err) {
                     throw err;
-                }yID
+                }
                 return res.status(200).json({
                     'message': `Successfully updated company registration for registration ID ${req.body.companyRegistrationID}`,
                     'inserted': result,
