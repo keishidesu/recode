@@ -13,6 +13,7 @@ const port = process.env.BACKEND_PORT || 9000;
 const connection = require('./database/connection'); // Database connection
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const upload = require('express-fileupload');
 
 // Set Swagger configurations
 const swaggerOptions = {
@@ -56,6 +57,7 @@ app.use(express.urlencoded({
   extended: true
 })); // parse urlencoded request body
 app.use(cookieParser());  // Enable server to parse cookies
+app.use(upload());  // Support file uploads
 
 
 // Use routers

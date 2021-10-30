@@ -6,6 +6,7 @@ const connection = require('../database/connection');  // Database connection
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 
+
 // Endpoint to get test message
 developerRouter.get('/', async (req, res) => {
     // TODO: this is just a basic testing route, clean this after usage
@@ -98,6 +99,11 @@ developerRouter.post('/register', (req, res) => {
     });
 
     return res.status(200).json({'msg': 'New user created', 'user': JSON.stringify(user)});
+})
+
+developerRouter.post('/upload', (req, res) => {
+    console.log(req.files.foo); // the uploaded file object
+    return res.send(req.files.foo);
 })
 
 module.exports = function(connection) {
