@@ -123,11 +123,11 @@ app.get('/testing', (req, res) => {
 
 // Get list of companies
 app.get('/companylist', (req, res) => {
-  let sql = 'SELECT C.name, C.email, P.id AS profile_id, P.tagline, P.description, P.website, P.profile_photo_filepath FROM company C, companyprofile P';
+  let sql = 'SELECT C.name AS companyName, C.email AS companyEmail, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath FROM Company C, CompanyProfile P';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.send(results);
+    res.status(200).json(results);
     return
   });
 });
@@ -202,9 +202,9 @@ app.get('/company/:username', (req, res) => {
     if (err) throw err;
     // console.log(results);
     if (results.length == 0) {
-      return res.status(404).json({
-        'msg': `No company with username '${username}' found in re:code.`,
-        'status': 'ERROR'
+      return res.status(400).json({
+        'message': `No company with username '${username}' found in re:code.`,
+        'errorStatus': true
       });
     } else {
       return res.status(200).json(results[0])

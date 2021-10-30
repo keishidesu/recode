@@ -3,7 +3,6 @@ const {
     v4: uuidv4
 } = require('uuid');
 const developerRouter = express.Router();
-// const {hashPassword, compareHashPassword} = require('../utilities/hashPassword.js');
 const connection = require('../database/connection'); // Database connection
 const bcrypt = require('bcrypt');
 const moment = require('moment');
