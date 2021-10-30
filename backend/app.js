@@ -49,14 +49,13 @@ var companyRouter = require('./routers/company');
 var adminRouter = require('./routers/admin');
 
 
-
-
 // Configure middlewares
 const oneDay = 1000 * 60 * 60 * 24;  // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
   cookie: {
-    maxAge: oneDay
+    maxAge: oneDay,
+    secure: false
   },
   resave: false,
   saveUninitialized: true
@@ -134,58 +133,36 @@ app.get('/companylist', (req, res) => {
 
 // Get list of developers
 app.get('/developerlist', (req, res) => {
-  let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
+  let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, P.id AS developerProfileId, P.professional_title AS developerProfessionalTitle, P.description AS developerDescription, P.website AS developerWebsite, P.profile_photo_filepath AS developerProfilePhotoFilepath FROM Developer D, DeveloperProfile P';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.send(results);
+    res.status(200).json(results);
     return
   });
 });
 
-
-// Get list of developers
-app.get('/developerlist', (req, res) => {
-  let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
-  let query = connection.query(sql, (err, results) => {
-    if (err) throw err;
-    console.log(results);
-    res.send(results);
-    return
-  });
-});
-
-// Get list of developers
-app.get('/developerlist', (req, res) => {
-  let sql = 'SELECT D.first_name, D.last_name, D.email, P.id AS profile_id, P.professional_title, P.description, P.website, P.profile_photo_filepath FROM developer D, developerprofile P';
-  let query = connection.query(sql, (err, results) => {
-    if (err) throw err;
-    console.log(results);
-    res.send(results);
-    return
-  });
-});
 
 app.get('/joblistings', (req, res) => {
-  let sql = 'SELECT J.id AS joblisting_id, J.title AS joblisting_title, J.job_description, J.salary_start, J.salary_end, J.created_at, J.expiration_date, J.active, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoPath, C.name AS companyName, C.username AS companyUsername, C.email AS companyEmail FROM joblisting J, company C, companyprofile P WHERE J.company_id = C.id AND C.id = P.company_id';
+  let sql = 'SELECT J.id AS joblistingId, J.title AS joblistingTitle, J.job_description AS joblistingJobDescription, J.salary_start AS joblistingSalaryStart, J.salary_end AS joblistingSalaryEnd, J.created_at AS joblistingCreatedAt , J.expiration_date AS joblistingExpirationDate, J.active AS joblistingActive, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath, C.name AS companyName, C.username AS companyUsername, C.email AS companyEmail FROM JobListing J, Company C, CompanyProfile P WHERE J.company_id = C.id AND C.id = P.company_id';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
-    res.send(results);
+    res.status(200).json(results);
     return
   });
 });
 
 app.get('/developer/:username', (req, res) => {
   let username = req.params.username;
-  let sql = 'SELECT D.first_name, D.last_name, D.username, D.email, D.registered_at, P.professional_title, P.description, P.resume_filepath, P.profile_photo_filepath, P.website, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.username = ?;';
+  let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.username AS developerUsername, D.email AS developerEmail, D.registered_at AS developerRegisteredAt, P.professional_title AS developerProfessionalTitle, P.description as developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.username = ?;';
   let query = connection.query(sql, [username], (err, results) => {
     if (err) throw err;
     // console.log(results);
     if (results.length == 0) {
       return res.status(404).json({
-        'msg': `No developer with username '${username}' found in re:code.`,
-        'status': 'ERROR'
+        'message': `No developer with username '${username}' found in re:code.`,
+        'errorStatus': true
       });
     } else {
       return res.status(200).json(results[0])
@@ -197,7 +174,7 @@ app.get('/developer/:username', (req, res) => {
 // Get specific company profile by username
 app.get('/company/:username', (req, res) => {
   let username = req.params.username;
-  let sql = 'SELECT C.name AS companyName, C.username, C.email, C.registered_at, P.id AS companyprofile_id, P.tagline AS companyTagline, P.description AS company_description, P.website AS company_website, P.profile_photo_filepath AS company_profile_photo_filepath, P.description, P.profile_photo_filepath, P.website FROM Company C, CompanyProfile P WHERE C.id = P.company_id  AND C.username = ?;';
+  let sql = 'SELECT C.name AS companyName, C.username AS companyUserName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt, P.id AS companyProfileId, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyPhotoFilepath, P.description AS companyDescription, P.profile_photo_filepath AS companyProfilePhotoFilepath, P.website AS companyWebsite FROM Company C, CompanyProfile P WHERE C.id = P.company_id  AND C.username = ?;';
   let query = connection.query(sql, [username], (err, results) => {
     if (err) throw err;
     // console.log(results);

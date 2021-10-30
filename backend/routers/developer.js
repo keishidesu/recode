@@ -106,7 +106,9 @@ developerRouter.post('/login',
                         if (result == true) {
                             req.session.authenticated = true;
                             req.session.role = 'DEVELOPER';
+                            req.session.userid = results[0].id;
                             // req.session.
+                            console.log(req.session);
                             console.log(results);
                             return res.status(200).json({
                                 'message': 'Login success!',
@@ -170,7 +172,7 @@ developerRouter.post('/register',
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                'message': 'Login failed',
+                'message': 'Registration failed',
                 'errors': errors.array(),
                 'errorStatus': true
             });
@@ -276,6 +278,9 @@ developerRouter.post('/register',
                 if (err) {
                     throw err;
                 } else {
+                    req.session.authenticated = true;
+                    req.session.role = 'DEVELOPER';
+                    req.session.userid = developer.id;
                     return res.status(200).json({
                         'message': 'Successful registration, created new developer account',
                         'developer': developer,
@@ -317,13 +322,12 @@ developerRouter.put('/profile',
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                'message': 'Login failed',
+                'message': 'Failed to update profile',
                 'errors': errors.array(),
                 'errorStatus': true
             });
         }
-
-
+        // Expects: developerID, profile photo in jpeg/png/jpg
         let inputFields = {
             ...req.body
         }
@@ -336,6 +340,13 @@ developerRouter.put('/profile',
         }
 
         let developerID = inputFields.developerID;
+
+        if (!(req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
+            return res.status(403).json({
+                'message': 'Unauthorized to perform this action',
+                'errorStatus': true
+            });
+        }
 
         try {
             let sql = 'UPDATE DeveloperProfile SET country_id = ?, professional_title = ?, description = ?, website = ? WHERE developer_id = ?'; // AND D.password_hash = ?
@@ -360,6 +371,14 @@ developerRouter.put('/profile',
 
 // Endpoint to update a developer's resume PDF
 developerRouter.post('/resume', async (req, res) => {
+    let developerID = req.params.developerID;
+    if (!(req.session.authenticated && req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
+        return res.status(403).json({
+            'message': 'Unauthorized to perform this action',
+            'errorStatus': true
+        });
+    }
+
     // Expects: developerID, resume in PDF
     const resume = req.files.resume;
     if (!resume) {
@@ -410,7 +429,15 @@ developerRouter.post('/resume', async (req, res) => {
 
 // Endpoint to update a developer's profilephoto
 developerRouter.post('/profilephoto', async (req, res) => {
+    let developerID = req.params.developerID;
     // Expects: developerID, profile photo in jpeg/png/jpg
+    if (!(req.session.authenticated && req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
+        return res.status(403).json({
+            'message': 'Unauthorized to perform this action',
+            'errorStatus': true
+        });
+    }
+
     const profilePhoto = req.files.profilephoto;
     if (!profilePhoto) {
         return res.status(400).json({
@@ -460,7 +487,7 @@ developerRouter.post('/profilephoto', async (req, res) => {
 
 // Developer get their own job applications
 developerRouter.get('/applications/:id',
-    bodyVal('developerID').isLength({
+    bodyVal('id').isLength({
         min: 30,
         max: 40
     }),
@@ -470,14 +497,18 @@ developerRouter.get('/applications/:id',
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                'message': 'Login failed',
+                'message': 'Failed to get self job application',
                 'errors': errors.array(),
                 'errorStatus': true
             });
         }
-
-
         let developerID = req.params.id;
+        if (!(req.session.authenticated && req.session.role == 'DEVELOPER' && req.session.userid == developerID)) {
+            return res.status(403).json({
+                'message': 'Unauthorized to perform this action',
+                'errorStatus': true
+            });
+        }
 
         try {
             let sql = 'SELECT D.id AS developerID, J.id AS jobApplicationID, L.id AS jobListingID, J.description AS jobApplicationDescription, J.status AS jobApplicationStatus, J.created_at AS jobApplicationCreatedAt, L.title AS jobListingTitle, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreatedAt, L.expiration_date AS jobListingExpirationDate, L.active AS jobListingActiveStatus, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt FROM Developer D, JobApplication J, JobListing L, Company C WHERE D.id = J.developer_id AND J.job_listing_id = L.id AND L.company_id = C.id AND D.id = ?'; // AND D.password_hash = ?
@@ -513,16 +544,25 @@ developerRouter.post('/application',
         max: 255
     }),
     (req, res) => {
+        if (!(req.session.authenticated && req.session.role == 'DEVELOPER')) {
+            return res.status(403).json({
+                'message': 'Unauthorized to perform this action',
+                'errorStatus': true
+            });
+        }
+
         // Request body expects: developer user ID, application details, job listing ID
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                'message': 'Login failed',
+                'message': 'Unable to create job application',
                 'errors': errors.array(),
                 'errorStatus': true
             });
         }
+
+
 
         let applicationDetails = {
             'developerID': req.params.developerID,
@@ -553,12 +593,25 @@ developerRouter.post('/application',
         }
     })
 
+// Route for developer to logout
+developerRouter.get('/logout', function (req, res, next) {
+    delete req.session.role;
+    delete req.session.authenticated;
+    delete req.session.userid;
+    console.log(req.session);
+    return res.status(200).json({
+        'message': 'Successfully logged out as developer',
+        'errorStatus': false
+    });
+});
+
 
 /* Country routes here */
 
 // Get all countries
 developerRouter.get('/countries', (req, res) => {
-    res.status(200).json({
+    console.log(req.session);
+    return res.status(200).json({
         'countries': countries
     });
 })
@@ -571,12 +624,18 @@ developerRouter.post('/country',
     }),
     (req, res) => {
         // Requires admin privilege
+        if (!(req.session.authenticated && req.session.role == 'ADMIN')) {
+            return res.status(403).json({
+                'message': 'Unauthorized to perform this action',
+                'errorStatus': true
+            });
+        }
 
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                'message': 'Login failed',
+                'message': 'Unable to create new country',
                 'errors': errors.array(),
                 'errorStatus': true
             });
