@@ -7,6 +7,7 @@ const adminRouter = express.Router();
 const connection = require('../database/connection'); // Database connection
 const bcrypt = require('bcrypt');
 const moment = require('moment');
+const saltRounds = parseInt(process.env.SALT_ROUNDS);
 const fs = require('fs');
 const {
     hashPassword,
@@ -145,7 +146,6 @@ adminRouter.put('/companyregistration',
     }),
     function (req, res) {
         // Expects the companyRegistrationID, status, rejectionReason
-
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {

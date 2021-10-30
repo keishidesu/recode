@@ -12,6 +12,7 @@ const {
     hashPassword,
     compareHashPassword
 } = require('../utilities/hashpassword');
+const saltRounds = parseInt(process.env.SALT_ROUNDS);
 const {
     profile
 } = require('console');
