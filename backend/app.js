@@ -59,6 +59,17 @@ app.use(express.urlencoded({
 app.use(cookieParser());  // Enable server to parse cookies
 app.use(upload());  // Support file uploads
 
+// app.use(function(req,res,next){
+//   var _send = res.send;
+//   var sent = false;
+//   res.send = function(data){
+//       if(sent) return;
+//       _send.bind(res)(data);
+//       sent = true;
+//   };
+//   next();
+// });
+
 /* Error handler middleware */
 // app.use((err, req, res, next) => {
 //   const statusCode = err.statusCode || 500;

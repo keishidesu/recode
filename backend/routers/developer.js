@@ -1,17 +1,50 @@
 const express = require('express');
 const {v4: uuidv4 } = require('uuid');
 const developerRouter = express.Router();
-const {hashPassword, compareHashPassword} = require('../utilities/hashPassword.js');
+// const {hashPassword, compareHashPassword} = require('../utilities/hashPassword.js');
 const connection = require('../database/connection');  // Database connection
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const fs = require('fs');
+const { hashPassword } = require('../utilities/hashpassword');
+const saltRounds = parseInt(process.env.SALT_ROUNDS);
+
+// Store country details in memory
+let countries = [];
+
+const setCountries = (rows) => {
+    for (let c of rows) {
+        countries.push({'id': c.id, 'name': c.name});
+    }
+}
+
+const isValidCountry = (id) => {
+    let valid = false;
+    for (let c of countries) {
+        if (c.id == id) {
+            valid = true;
+            break;
+        }
+    }
+    return valid;
+}
+
+let getCountrySql = 'SELECT * FROM Country C;';
+let getCountryQuery = connection.query(getCountrySql, (err, results) => {
+  if (err) {
+    throw err;
+    // return res.status(404).json({'message': 'An error occured, please try again', 'error': err, 'errorStatus': true});
+  }
+  setCountries(results);
+});
+
+/* START WRITING RELEVANT ENDPOINTS */
 
 // Endpoint to get test message
 developerRouter.get('/', async (req, res) => {
     // TODO: this is just a basic testing route, clean this after usage
     let passw = '1234';
-    let pp = await hashPassword(passw);
+    let pp = await hashPassword(passw, saltRounds);
     console.log(hashPassword(passw));
     return res.status(200).json({'message': 'Welcome to the developers /GET route', 'TestPasswordHash': pp});
 })
@@ -32,22 +65,22 @@ developerRouter.post('/login', async (req, res) => {
     }
     console.log(loginDetails);
     if (!loginDetails.email || !loginDetails.password) {
-        return res.status(404).json({'msg': 'Login details are incomplete, please retry login'})
+        return res.status(404).json({'message': 'Login details are incomplete, please retry login', 'errorStatus': true})
     }
 
     let sql = 'SELECT D.id, D.first_name, D.last_name, D.email, D.contact_number, D.registered_at, D.password_hash FROM Developer D WHERE D.email = ?';  // AND D.password_hash = ?
     let query = connection.query(sql, [loginDetails.email], async (err,results) => {
       if(err) throw err;
       if (results.length == 0) {
-          return res.status(404).json({'msg': 'Login details are invalid, email for this user does not exist'})
+          return res.status(404).json({'message': 'Login details are invalid, email for this user does not exist', 'errorStatus': true})
       }
     //   console.log(`HASH: ${JSON.stringify(results[0])}`)
 
       const compared = await bcrypt.compare(password,results[0].password_hash).then((result)=>{
         if (result == true) {
-            return res.status(200).json({'msg': 'Login success!'});
+            return res.status(200).json({'message': 'Login success!', 'errorStatus': false});
         } else {
-            return res.status(404).json({'msg': 'Login failed, login details are invalid'});
+            return res.status(404).json({'message': 'Login failed, login details are invalid', 'errorStatus': true});
         }
       })
       .catch((err)=>console.error(err))
@@ -55,9 +88,10 @@ developerRouter.post('/login', async (req, res) => {
 })
 
 // Endpoint to register a new developer account
-developerRouter.post('/register', (req, res) => {
+developerRouter.post('/register', async (req, res) => {
     let password = req.body.password;
-    password = bcrypt.hashSync(password, 10);
+    let passwordHash = await hashPassword(password, saltRounds);
+
     let developer = {
         'id': uuidv4(),
         'profile_id': uuidv4(),
@@ -74,74 +108,44 @@ developerRouter.post('/register', (req, res) => {
         'password': password,
         'registered_at': moment().format('YYYY-MM-DD HH:mm:ss')
     };
-    // console.log(JSON.stringify(developer));
 
+    // Check if fields needed are passed in
     if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !developer.password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
-        return res.status(404).json({'message': 'Developer registration details are incomplete, please retry registration again', 'errorStatus': true});
+        return res.status(400).json({'message': 'Developer registration details are incomplete, please retry registration again', 'errorStatus': true});
     }
 
-    // Check if country ID is valid
-    let invalidCountry = true;
-    let sql = 'SELECT * FROM Country C WHERE C.id = ?';
-    let query = connection.query(sql, [developer.country_id], (err, results) => {
-      if (err) {
-        throw err;
-        // return res.status(404).json({'message': 'An error occured, please try again', 'error': err, 'errorStatus': true});
-      } else {
-        if (results.length == 0) {
-            // console.log(true);
-            // // return res.send('nthing here');
-            // // return callback(res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true}));
-            // callback(null, res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true}));
-            res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true});
-            return
-            // return false;
-        }
-      }
-    //   console.log(`results lenght: ${results.length}`);
-
-    });
-    // console.log(`query - ${JSON.stringify(query)}`);
-    if (query == false) {
-        console.log('invalid country');
-        return res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true});
+    // Check if country ID passed in is valid
+    const validCountry = isValidCountry(developer.country_id);
+    if (!validCountry) {
+        return res.status(400).json({'message': 'Invalid country ID, please try again with a valid country ID', 'errorStatus': true});
     }
 
+    // Perform checking on resume and profile photo, and save to relevant folders
     const resume = req.files.resume;
     const profilePhoto = req.files.profilephoto;
 
     if (!resume || !profilePhoto) {
-        return res.status(404).json({'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files', 'errorStatus': true});
+        return res.status(400).json({'message': 'Either the resume file or the profile photo file is missing, please reupload the resume and profile photo files', 'errorStatus': true});
     }
 
     const resumePath = `./developerfiles/resume/${resume.name}`;
     const profilePhotoPath = `./developerfiles/profilephoto/${profilePhoto.name}`;
 
     if (fs.existsSync(resumePath) || fs.existsSync(profilePhotoPath)) {
-        return res.status(404).json({'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name', 'errorStatus': true});
+        return res.status(400).json({'message': 'Either the resume file or the profile photo file already exists, please upload another file of a different name', 'errorStatus': true});
     }
 
-    let resumeFailed = false;
     resume.mv(resumePath, function(err) {
         if (err) {
-            resumeFailed = true;
+            return res.status(400).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
         }
     });
 
-    if (resumeFailed == true) {
-        return res.status(404).json({'message': 'An error occured when uploading resume', 'errorStatus': true});
-    }
-
-    let profPhotoFailed = false;
     profilePhoto.mv(profilePhotoPath, function(err) {
         if (err) {
-            profPhotoFailed = true;
+            return res.status(400).json({'message': 'An error occured', 'errorStatus': true});
         }
     });
-
-    if (profPhotoFailed == true) {
-        return res.status(404).json({'message': 'An error occured', 'errorStatus': true});
-    }
 
     // return res.status(200).json({'message': `Successfully uploaded resume with filename ${resume.name} and profile photo with filename ${profilePhoto.name}`, 'errorStatus': false});
     
@@ -149,33 +153,23 @@ developerRouter.post('/register', (req, res) => {
     developer['resume_filepath'] = resumePath;
     developer['profile_photo_filepath'] = profilePhotoPath;
 
-    let developerInsertFailed = false;
+    // Save to database
     sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
     query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err,result) => {
       if (err) {
-        developerInsertFailed = true;
         throw err;
+        // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
       }
     });
-    
-    if (developerInsertFailed == true) {
-        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
-    }
 
-    let developerProfFailed = false;
     sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';  // AND D.password_hash = ?
     query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err,result) => {
       if (err) {
-        developerProfFailed = true;
         throw err;
+      } else {
+        return res.status(200).json({'message': 'Successful registration, created new developer account', 'developer': developer, 'errorStatus': true});
       }
     });
-
-    if (developerProfFailed == true) {
-        return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
-    }
-
-    return res.status(200).json({'message': 'Successful registration, created new developer account', 'developer': developer, 'errorStatus': true});
 });
 
 // Endpoint to update a developer profile account
@@ -204,11 +198,13 @@ developerRouter.put('/asdasd', async (req, res) => {
     let sql = 'SELECT C.name FROM Country C';
     let query = connection.query(sql, (err,results) => {
       if (err) {
+          console.log(err);
         return res.status(404).json({'message': 'An error occured, please try again', 'error': err, 'errorStatus': true});
       }
 
       if (results.length == 0) {
-        return res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'error': err, 'errorStatus': true});
+          console.log(res);
+        // return res.status(404).json({'message': 'Invalid country ID, please try again with a valid country ID', 'error': err, 'errorStatus': true});
       }
     });
 
