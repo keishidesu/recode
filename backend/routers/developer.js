@@ -311,6 +311,10 @@ developerRouter.put('/profile',
         min: 10,
         max: 255
     }),
+    bodyVal('countryID').isLength({
+        min: 10,
+        max: 255
+    }),
     bodyVal('website').isLength({
         min: 5,
         max: 100
@@ -489,10 +493,10 @@ developerRouter.post('/profilephoto', async (req, res) => {
 
 // Developer get their own job applications
 developerRouter.get('/applications/:id',
-    bodyVal('id').isLength({
-        min: 30,
-        max: 40
-    }),
+    //bodyVal('id').isLength({
+    //    min: 30,
+    //    max: 40
+    //}),
     (req, res) => {
         // id indicates the developer id
         const errors = validationResult(req);

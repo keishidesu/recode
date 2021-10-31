@@ -158,9 +158,11 @@ companyRouter.post('/register',
             'description': req.body.description,
             'profile_photo_filepath': ''
         };
+        console.log(`COMPANY: ${JSON.stringify(company)}`);
 
         // Check if fields needed are passed in
-        if (!company.id || !company.profile_id || !company.username || !company.name || !company.email || company.profile_photo_filepath || !password || !company.website || !company.tagline || !company.description) {
+        console.log(!company.tagline);
+        if (!company.username || !company.name || !company.email || !password || !company.website || !company.tagline || !company.description) {  //     
             return res.status(400).json({
                 'message': 'Company registration details are incomplete, please retry registration again',
                 'errorStatus': true
@@ -210,21 +212,30 @@ companyRouter.post('/register',
             sql = 'INSERT INTO Company(id, username, name, email, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
             query = connection.query(sql, [company.id, company.username, company.name, company.email, company.password, company.registered_at], (err, result) => {
                 if (err) {
+                    console.log('error in company table');
                     throw err;
                     // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
                 }
             });
 
-            sql = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [company.profile_id, company.id, company.tagline, developer.description, company.website, developer.profile_photo_filepath], (err, result) => {
+            console.log('after in company');
+
+
+            let cpSQL = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            let cpQuery = connection.query(cpSQL, [company.profile_id, company.id, company.tagline, developer.description, company.website, company.profile_photo_filepath], (err, result) => {
                 if (err) {
+                    console.log('error in company profile');
+                    console.log(err, result);
                     throw err;
                 }
             });
 
-            sql = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [company.registration_id, company.id, company.reviewed_admin, company.status, company.rejection_reason], (err, result) => {
+            console.log('after in company profile');
+
+            let crSQL = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            let crQuery = connection.query(crSQL, [company.registration_id, company.id, company.reviewed_admin, company.status, company.rejection_reason], (err, result) => {
                 if (err) {
+                    console.log('error in company registration');
                     throw err;
                 } else {
                     return res.status(200).json({
@@ -234,6 +245,8 @@ companyRouter.post('/register',
                     });
                 }
             });
+            console.log('after in company registration');
+
         } catch (err) {
             return res.status(400).json({
                 'message': 'An error occured',
@@ -420,7 +433,7 @@ companyRouter.post('/joblisting',
         }
 
         let listingDetails = {
-            'companyID': req.body.developerID,
+            'companyID': req.body.companyID, //originally is developerID
             'id': uuidv4(),
             'title': req.body.title,
             'salaryStart': req.body.salaryStart,
@@ -517,7 +530,7 @@ companyRouter.put('/joblisting',
 
         try {
             let sql = 'UPDATE JobListing SET title = ?, job_description = ?, salary_start = ?, salary_end = ?, expiration_date = ?, active = ? WHERE id = ?'; // AND D.password_hash = ?
-            let query = connection.query(sql, [inputFields.title, inputFields.jobDescription, inputFields.salaryStart, inputFields.salaryEnd, inputFields.expirationDate, inputFields.jobListingID], (err, result) => {
+            let query = connection.query(sql, [inputFields.title, inputFields.jobDescription, inputFields.salaryStart, inputFields.salaryEnd, inputFields.expirationDate, inputFields.active ,inputFields.jobListingID], (err, result) => { // not found active 
                 if (err) {
                     throw err;
                 }
@@ -559,7 +572,7 @@ companyRouter.get('/joblisting/:id',
         }
 
         try {
-            let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+            let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [companyID], (err, result) => {
                 if (err) {
                     throw err;
@@ -579,7 +592,7 @@ companyRouter.get('/joblisting/:id',
     })
 
 //Approve/reject job application
-companyRouter.put('/jobapplication/:applicationID',
+companyRouter.put('/jobapplication',
     bodyVal('applicationID').isLength({
         min: 30,
         max: 40
@@ -589,7 +602,7 @@ companyRouter.put('/jobapplication/:applicationID',
         max: 40
     }),
     bodyVal('status').isLength({
-        min: 2,
+        min: 1,
         max: 40
     }),
     function (req, res) {
@@ -664,7 +677,7 @@ companyRouter.delete('/joblisting',
             });
         }
 
-        let jobListingID = req.body.jobListingID;
+        let jobListingID = req.body.joblistingID;
         let companyID = req.body.companyID;
 
         console.log(`jobListingID to be deleted: ${jobListingID}`);
