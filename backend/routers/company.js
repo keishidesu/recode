@@ -20,7 +20,7 @@ const {
     body: bodyVal,
     validationResult
 } = require('express-validator');
-
+var pool = require('../database/connectionpool');
 
 // Endpoint to login for this admin
 companyRouter.post('/login',
@@ -209,44 +209,77 @@ companyRouter.post('/register',
             company.profile_photo_filepath = profilePhotoPath;
 
             // Save to database
-            sql = 'INSERT INTO Company(id, username, name, email, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            sql = 'INSERT INTO Company(id, username, name, email, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?);'; // AND D.password_hash = ?
             query = connection.query(sql, [company.id, company.username, company.name, company.email, company.password, company.registered_at], (err, result) => {
                 if (err) {
                     console.log('error in company table');
                     throw err;
                     // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
                 }
-            });
 
-            console.log('after in company');
-
-
-            let cpSQL = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            let cpQuery = connection.query(cpSQL, [company.profile_id, company.id, company.tagline, developer.description, company.website, company.profile_photo_filepath], (err, result) => {
-                if (err) {
-                    console.log('error in company profile');
-                    console.log(err, result);
-                    throw err;
-                }
-            });
-
-            console.log('after in company profile');
-
-            let crSQL = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            let crQuery = connection.query(crSQL, [company.registration_id, company.id, company.reviewed_admin, company.status, company.rejection_reason], (err, result) => {
-                if (err) {
-                    console.log('error in company registration');
-                    throw err;
-                } else {
-                    return res.status(200).json({
-                        'message': 'Successful registration, created new company account',
-                        'company': company,
-                        'errorStatus': true
+                let cpSQL = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?);'; // AND D.password_hash = ?
+                let cpQuery = connection.query(cpSQL, [company.profile_id, company.id, company.tagline, company.description, company.website, company.profile_photo_filepath], (err, result) => {
+                    
+                    console.log('after in company profile');
+                    if (err) {
+                        console.log('error in company profile');
+                        console.log(err, result);
+                        throw err;
+                    }
+                    let crSQL = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, NULL, ?, ?);'; // AND D.password_hash = ?
+                    let crQuery = connection.query(crSQL, [company.registration_id, company.id,  company.status, company.rejection_reason], (err, result) => {
+                        console.log('after in company registration');
+                        // company.reviewed_admin,
+                        if (err) {
+                            console.log('error in company registration');
+                            throw err;
+                        }
                     });
-                }
-            });
-            console.log('after in company registration');
+                });
 
+            });
+
+            console.log('after company registration');
+            return res.status(200).json({
+                'message': 'Successful registration, created new company account',
+                'company': company,
+                'errorStatus': true
+            });
+
+            // // Save to database
+            // sql = 'INSERT INTO Company(id, username, name, email, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            // query = await pool.query(sql, [company.id, company.username, company.name, company.email, company.password, company.registered_at], (err, result) => {
+            //     if (err) {
+            //         console.log('error in company table');
+            //         throw err;
+            //         // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
+            //     }
+            // });
+
+            // let cpSQL = 'INSERT INTO CompanyProfile(id, company_id, tagline, description, website, profile_photo_filepath) VALUES (?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            // let cpQuery = await pool.query(cpSQL, [company.profile_id, company.id, company.tagline, developer.description, company.website, company.profile_photo_filepath], (err, result) => {
+            //     if (err) {
+            //         console.log('error in company profile');
+            //         console.log(err, result);
+            //         throw err;
+            //     }
+            // });
+
+            // console.log('after in company profile');
+
+            // let crSQL = 'INSERT INTO CompanyRegistration(id, company_id, reviewed_admin, status, rejection_reason) VALUES (?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+            // let crQuery = await pool.query(crSQL, [company.registration_id, company.id, company.reviewed_admin, company.status, company.rejection_reason], (err, result) => {
+            //     if (err) {
+            //         console.log('error in company registration');
+            //         throw err;
+            //     }
+            // });
+            // console.log('after in company registration');
+            // return res.status(200).json({
+            //     'message': 'Successful registration, created new company account',
+            //     'company': company,
+            //     'errorStatus': true
+            // });
         } catch (err) {
             return res.status(400).json({
                 'message': 'An error occured',
@@ -572,7 +605,8 @@ companyRouter.get('/joblisting/:id',
         }
 
         try {
-            let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+            // let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+            let sql = 'SELECT C.id AS companyID, J.id AS jobListingID, J.title AS companyJobListing, J.job_description AS companyJobDescription, J.salary_start AS jobListingSalaryStart, J.salary_end AS jobListingSalaryEnd, J.expiration_date AS jobListingExpirationDate FROM Company C, JobListing J WHERE C.id = J.company_id AND C.id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [companyID], (err, result) => {
                 if (err) {
                     throw err;
@@ -590,6 +624,39 @@ companyRouter.get('/joblisting/:id',
             });
         }
     })
+
+// Company get the job applications related to a job listing
+companyRouter.get('/jobapplications/:joblistingid',
+(req, res) => {
+    // id indicates the company id
+    let companyID = req.session.userid;
+    if (!(req.session.authenticated && req.session.role == 'COMPANY')) {
+        return res.status(403).json({
+            'message': 'Unauthorized to perform this action',
+            'errorStatus': true
+        });
+    }
+
+    try {
+        // let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, A.description AS jobApplicationDescription, A.status AS jobApplicationStatus, A.created_at AS jobApplicationCreatedAt FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [companyID], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            return res.status(200).json({
+                'jobApplications': result,
+                'errorStatus': false
+            });
+        });
+    } catch (err) {
+        return res.status(400).json({
+            'message': 'An error occured',
+            'error': err,
+            'errorStatus': true
+        });
+    }
+})
 
 //Approve/reject job application
 companyRouter.put('/jobapplication',

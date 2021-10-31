@@ -19,7 +19,7 @@ const {
     body: bodyVal,
     validationResult
 } = require('express-validator');
-
+var pool = require('../database/connectionpool');
 
 // Store country details in memory
 let countries = [];
@@ -43,6 +43,14 @@ const isValidCountry = (id) => {
     }
     return valid;
 }
+
+// const getCountries = async () => {
+//     let sql = 'SELECT * FROM Country C;';
+//     let result = await pool.query(sql, function(err) {
+//         if (err) throw err;
+//     })
+//     return result;
+// }
 
 let getCountrySql = 'SELECT * FROM Country C;';
 let getCountryQuery = connection.query(getCountrySql, (err, results) => {
@@ -78,6 +86,13 @@ developerRouter.post('/login',
             });
         }
 
+
+        // let regSql = "SELECT * FROM Developer WHERE email = ?;";
+        // // let registeredBefore = await pool.query(reqSql, [developer.email])
+        // let registeredBefore = await pool.query(regSql, [req.body.email], function(err) {
+        //     if (err) throw err;
+        // })
+        // console.log(registeredBefore);
 
         let password = req.body.password;
         let loginDetails = {
@@ -198,6 +213,14 @@ developerRouter.post('/register',
             'registered_at': moment().format('YYYY-MM-DD HH:mm:ss')
         };
 
+        let regSql = "SELECT * FROM Developer WHERE email = ?";
+        // let registeredBefore = await pool.query(reqSql, [developer.email])
+
+        let registeredBefore = await pool.query(reqSql, function(err) {
+            if (err) throw err;
+        })
+        console.log(registeredBefore);
+
         // Check if fields needed are passed in
         if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
             return res.status(400).json({
@@ -207,7 +230,10 @@ developerRouter.post('/register',
         }
 
         // Check if country ID passed in is valid
-        const validCountry = isValidCountry(developer.country_id);
+        let validCountry = isValidCountry(developer.country_id);
+        // validCountry = isValCountry(developer.country_id);
+        // let countriesList = await getCountries();
+        // console.log(`countriesList: ${countriesList}`);
         if (!validCountry) {
             return res.status(400).json({
                 'message': 'Invalid country ID, please try again with a valid country ID',
@@ -264,29 +290,34 @@ developerRouter.post('/register',
             developer.resume_filepath = resumePath;
             developer.profile_photo_filepath = profilePhotoPath;
 
+            console.log(`developer: ${JSON.stringify(developer)}`);
+            console.log(developer.email);
+            let email = developer.email;
+            email = `${developer.email}`;
+            console.log(email);
             // Save to database
-            sql = 'INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.email, developer.contact_number, developer.password, developer.registered_at], (err, result) => {
+            sql = `INSERT INTO Developer(id, username, first_name, last_name, email, contact_number, password_hash, registered_at) VALUES (?, ?, ?, ?, "${email}", ?, ?, ?)`; // AND D.password_hash = ?
+            query = connection.query(sql, [developer.id, developer.username, developer.first_name, developer.last_name, developer.contact_number, developer.password, developer.registered_at], (err, result) => {
                 if (err) {
                     throw err;
                     // return res.status(404).json({'message': 'An error occured when creating this developer account, please try again to register', 'errorStatus': true});
                 }
-            });
-
-            sql = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
-            query = connection.query(sql, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err, result) => {
-                if (err) {
-                    throw err;
-                } else {
-                    req.session.authenticated = true;
-                    req.session.role = 'DEVELOPER';
-                    req.session.userid = developer.id;
-                    return res.status(200).json({
-                        'message': 'Successful registration, created new developer account',
-                        'developer': developer,
-                        'errorStatus': true
-                    });
-                }
+                
+                let dpSQL = 'INSERT INTO DeveloperProfile(id, developer_id, country_id, professional_title, description, resume_filepath, profile_photo_filepath, website) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'; // AND D.password_hash = ?
+                let dpQuery = connection.query(dpSQL, [developer.profile_id, developer.id, developer.country_id, developer.professional_title, developer.description, developer.resume_filepath, developer.profile_photo_filepath, developer.website], (err, result) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        req.session.authenticated = true;
+                        req.session.role = 'DEVELOPER';
+                        req.session.userid = developer.id;
+                        return res.status(200).json({
+                            'message': 'Successful registration, created new developer account',
+                            'developer': developer,
+                            'errorStatus': true
+                        });
+                    }
+                });
             });
         } catch (err) {
             return res.status(400).json({
@@ -646,7 +677,7 @@ developerRouter.post('/country',
         }
 
 
-        let name = req.params.name;
+        let name = req.body.name;
         if (!name) {
             return res.status(400).json({
                 'message': 'No name attached for creating a new country',
