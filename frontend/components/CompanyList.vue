@@ -4,11 +4,17 @@
       <b-card v-for="(company, index) in companies" :key="company[index]" class="text-center bg-nf-white border-round mt-3" style="width:85%">
         <b-row>
           <b-col md="2" class="ml-4">
-            <b-img rounded :src="require(`../assets/img/${company.companyImg}.png`)" width="100px" fluid />
+            <b-img rounded :src="`${company.companyProfilePhotoFilepath}`" width="100px" fluid />
           </b-col>
           <b-col class="text-left ml-1">
-            <div class="font-weight-bold">{{company.companyName}}</div>
-            <div>{{company.desc}}</div>
+            <h5 class="font-weight-bold text-uppercase">{{company.companyName}}</h5>
+            <div class="font-weight-bold font-italic">{{company.companyTagline}}</div>
+            <div>{{company.companyDescription}}</div>
+            <div class="mt-3">Email: {{company.companyEmail}}</div>
+            <a class="mt-3">Website: {{company.companyWebsite}}</a><br>
+            <NuxtLink :to='`/${company.companyUsername}`'>
+              <b-button class="mt-2 nf-button-secondary">Learn more</b-button>
+            </NuxtLink>
           </b-col>
         </b-row>
       </b-card>
@@ -20,11 +26,14 @@
 export default {
   data() {
     return {
-      companies: [
-        { companyImg: 'google', companyName: 'Google', desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do   eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' },
-        { companyImg: 'google', companyName: 'Google', desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do   eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' }
-      ]
+      companies: ''
     }
+  },
+  async fetch() {
+    const companies = await fetch('http://localhost:8000/companylist')
+    const res = await companies.json()
+    this.companies = res
+    console.log(res)
   }
 }
 </script>

@@ -1,6 +1,7 @@
 require('dotenv').config(); // Load env variables that are set in the .env file in project directory
 
 // Configuration variables
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const port = process.env.BACKEND_PORT || 9000;
@@ -67,6 +68,8 @@ app.use(express.urlencoded({
 })); // parse urlencoded request body
 app.use(cookieParser()); // Enable server to parse cookies
 app.use(upload()); // Support file uploads
+
+app.use(cors());
 
 // Use routers
 app.use('/developer', sessionMiddleware, developerRouter);
