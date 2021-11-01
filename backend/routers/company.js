@@ -785,16 +785,23 @@ companyRouter.delete('/joblisting',
     });
 
 
-// Route for admin to logout
+// Route for company to logout
 companyRouter.get('/logout', function (req, res, next) {
-    delete req.session.role;
-    delete req.session.authenticated;
-    delete req.session.userid;
-    console.log(req.session);
-    return res.status(200).json({
-        'message': 'Successfully logged out as company',
-        'errorStatus': false
-    });
+    if (req.session.role != null || req.session.role != undefined) {
+        delete req.session.role;
+        delete req.session.authenticated;
+        delete req.session.userid;
+        console.log(req.session);
+        return res.status(200).json({
+            'message': 'Successfully logged out as company',
+            'errorStatus': false
+        });
+    } else {
+        return res.status(200).json({
+            'message': 'You were not logged in before as company',
+            'errorStatus': false
+        });
+    }
 });
 
 module.exports = companyRouter;

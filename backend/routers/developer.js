@@ -213,13 +213,13 @@ developerRouter.post('/register',
             'registered_at': moment().format('YYYY-MM-DD HH:mm:ss')
         };
 
-        let regSql = "SELECT * FROM Developer WHERE email = ?";
+        // let regSql = "SELECT * FROM Developer WHERE email = ?";
         // let registeredBefore = await pool.query(reqSql, [developer.email])
 
-        let registeredBefore = await pool.query(reqSql, function(err) {
-            if (err) throw err;
-        })
-        console.log(registeredBefore);
+        // let registeredBefore = await pool.query(reqSql, function(err) {
+        //     if (err) throw err;
+        // })
+        // console.log(registeredBefore);
 
         // Check if fields needed are passed in
         if (!developer.id || !developer.username || !developer.first_name || !developer.last_name || !developer.email || !developer.contact_number || !password || !developer.registered_at || !developer.professional_title || !developer.country_id) {
@@ -548,7 +548,7 @@ developerRouter.get('/applications/:id',
         }
 
         try {
-            let sql = 'SELECT D.id AS developerID, J.id AS jobApplicationID, L.id AS jobListingID, J.description AS jobApplicationDescription, J.status AS jobApplicationStatus, J.created_at AS jobApplicationCreatedAt, L.title AS jobListingTitle, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreatedAt, L.expiration_date AS jobListingExpirationDate, L.active AS jobListingActiveStatus, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt FROM Developer D, JobApplication J, JobListing L, Company C WHERE D.id = J.developer_id AND J.job_listing_id = L.id AND L.company_id = C.id AND D.id = ?'; // AND D.password_hash = ?
+            let sql = 'SELECT D.id AS developerID, D.username AS developerUsername, J.id AS jobApplicationID, L.id AS jobListingID, J.description AS jobApplicationDescription, J.status AS jobApplicationStatus, J.created_at AS jobApplicationCreatedAt, L.title AS jobListingTitle, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreatedAt, L.expiration_date AS jobListingExpirationDate, L.active AS jobListingActiveStatus, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt FROM Developer D, JobApplication J, JobListing L, Company C WHERE D.id = J.developer_id AND J.job_listing_id = L.id AND L.company_id = C.id AND D.id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [developerID], (err, result) => {
                 if (err) {
                     throw err;
@@ -630,14 +630,21 @@ developerRouter.post('/application',
 
 // Route for developer to logout
 developerRouter.get('/logout', function (req, res, next) {
-    delete req.session.role;
-    delete req.session.authenticated;
-    delete req.session.userid;
-    console.log(req.session);
-    return res.status(200).json({
-        'message': 'Successfully logged out as developer',
-        'errorStatus': false
-    });
+    if (req.session.role != null || req.session.role != undefined) {
+        delete req.session.role;
+        delete req.session.authenticated;
+        delete req.session.userid;
+        console.log(req.session);
+        return res.status(200).json({
+            'message': 'Successfully logged out as developer',
+            'errorStatus': false
+        });
+    } else {
+        return res.status(200).json({
+            'message': 'You were not logged in before as developer',
+            'errorStatus': false
+        });
+    }
 });
 
 
