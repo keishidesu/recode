@@ -14,12 +14,12 @@
             <DevCompletedJobList />
           </div>
         </b-col>
-        <b-col>
+        <!-- <b-col>
           <div class="my-4">
             <h5 class="font-weight-bold">Your Profile</h5>
             <DeveloperProfile />
           </div>
-        </b-col>
+        </b-col> -->
       </b-row>
     </b-container>
   </div>
@@ -29,9 +29,31 @@
 export default {
   data() {
     return {
-      bgcolor: 'bg-nf-primary'
+      bgcolor: 'bg-nf-primary',
+      developer: ''
     }
-  }
+  },
+  methods: {
+    async getAccount() {
+      console.log('asdad')
+      await this.$axios
+      .get('http://localhost:8000/developer/applications/897fed76-8407-421f-adb3-89f7fc97e638')
+      .then((res) => {
+        console.log(JSON.stringify(res))
+        if (res.status == 200) {
+          this.developer = res.data
+        } else {
+          window.alert("Smth wrong");
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
+  },
+  beforeMount(){
+    this.getAccount()
+  },
 }
 </script>
 

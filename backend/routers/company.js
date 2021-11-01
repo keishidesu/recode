@@ -348,6 +348,27 @@ companyRouter.post('/profilephoto', async (req, res) => {
     }
 });
 
+// route for company to get its profile photo
+// companyRouter.get('/getprofilephoto/:filename',
+
+//     (req, res) => {
+//         // id indicates the company id
+//         const errors = validationResult(req);
+
+//         if (!errors.isEmpty()) {
+//             return res.status(400).json({
+//                 'message': 'Failed to get self profile photo',
+//                 'errors': errors.array(),
+//                 'errorStatus': true
+//             });
+//         }
+        
+//         // get profile photo file path company want
+//         res.attachment(path.resolve())
+//     })
+
+
+
 
 // Endpoint to update a company profile account
 companyRouter.put('/profile',
