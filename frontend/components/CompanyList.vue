@@ -12,7 +12,7 @@
             <div>{{company.companyDescription}}</div>
             <div class="mt-3">Email: {{company.companyEmail}}</div>
             <a class="mt-3">Website: {{company.companyWebsite}}</a><br>
-            <NuxtLink :to='`/${company.companyUsername}`'>
+            <NuxtLink :to='`/company/${company.companyUsername}`'>
               <b-button class="mt-2 nf-button-secondary">Learn more</b-button>
             </NuxtLink>
           </b-col>

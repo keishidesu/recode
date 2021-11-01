@@ -1,10 +1,10 @@
 require('dotenv').config(); // Load env variables that are set in the .env file in project directory
 
 // Configuration variables
-const cors = require('cors');
 const express = require('express');
 const app = express();
 const port = process.env.BACKEND_PORT || 9000;
+const cors = require('cors');
 
 const mysql = require('mysql');
 const session = require('express-session');
@@ -39,6 +39,7 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions); // Initialize swagger docs with configurations above
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+app.use(cors());
 
 // Import routers
 // var userRouter = require('./routers/user')(connection);
@@ -85,7 +86,7 @@ app.get('/', (req, res) => {
 
 // Get list of companies
 app.get('/companylist', (req, res) => {
-  let sql = 'SELECT C.name AS companyName, C.email AS companyEmail, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath FROM Company C, CompanyProfile P, CompanyRegistration R WHERE C.id = P.company_id AND C.id = R.company_id AND R.status = ?';
+  let sql = 'SELECT C.username AS companyUsername, C.name AS companyName, C.email AS companyEmail, P.id AS companyProfileID, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyProfilePhotoFilepath FROM Company C, CompanyProfile P, CompanyRegistration R WHERE C.id = P.company_id AND C.id = R.company_id AND R.status = ?';
   let query = connection.query(sql, ['APPROVED'], (err, results) => {
     if (err) throw err;
     console.log(results);
@@ -95,7 +96,7 @@ app.get('/companylist', (req, res) => {
 
 // Get list of developers
 app.get('/developerlist', (req, res) => {
-  let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, P.id AS developerProfileId, P.professional_title AS developerProfessionalTitle, P.description AS developerDescription, P.website AS developerWebsite, P.profile_photo_filepath AS developerProfilePhotoFilepath FROM Developer D, DeveloperProfile P';
+  let sql = 'SELECT D.username AS developerUsername D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, P.id AS developerProfileId, P.professional_title AS developerProfessionalTitle, P.description AS developerDescription, P.website AS developerWebsite, P.profile_photo_filepath AS developerProfilePhotoFilepath FROM Developer D, DeveloperProfile P';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
