@@ -4,6 +4,7 @@ require('dotenv').config(); // Load env variables that are set in the .env file 
 const express = require('express');
 const app = express();
 const port = process.env.BACKEND_PORT || 9000;
+const cors = require('cors');
 
 const mysql = require('mysql');
 const session = require('express-session');
@@ -38,6 +39,7 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions); // Initialize swagger docs with configurations above
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+app.use(cors());
 
 // Import routers
 // var userRouter = require('./routers/user')(connection);

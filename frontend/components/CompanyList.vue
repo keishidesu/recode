@@ -25,6 +25,21 @@ export default {
         { companyImg: 'google', companyName: 'Google', desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do   eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' }
       ]
     }
+  },
+  methods: {
+      async getCompanies() {
+        console.log(123);
+        // const companies = await this.$axios.$get('http://localhost:8000/companylist')
+        const companies = await fetch('http://localhost:8000/companylist')
+        const res = companies.json()
+        this.companies = res
+        console.log(res)
+        return res;
+      }
+  },
+  created() {
+    const res = this.getCompanies();
+    console.log(res);
   }
 }
 </script>
