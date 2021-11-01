@@ -94,7 +94,7 @@ app.get('/companylist', (req, res) => {
 
 // Get list of developers
 app.get('/developerlist', (req, res) => {
-  let sql = 'SELECT D.username AS developerUsername D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, P.id AS developerProfileId, P.professional_title AS developerProfessionalTitle, P.description AS developerDescription, P.website AS developerWebsite, P.profile_photo_filepath AS developerProfilePhotoFilepath FROM Developer D, DeveloperProfile P';
+  let sql = 'SELECT D.username AS developerUsername, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, P.id AS developerProfileId, P.professional_title AS developerProfessionalTitle, P.description AS developerDescription, P.website AS developerWebsite, P.profile_photo_filepath AS developerProfilePhotoFilepath FROM Developer D, DeveloperProfile P';
   let query = connection.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
