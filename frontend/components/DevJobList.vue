@@ -23,7 +23,7 @@
             </p>
             <p class="font-weight-bold">Your application response:</p>
             <p>
-              {{job.jobApplicationStatus}}
+              {{ job.jobApplicationStatus }}
             </p>
           </b-collapse>
         </b-row>

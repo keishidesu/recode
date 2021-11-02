@@ -23,6 +23,7 @@
 
 <script>
 export default {
+  props: ['developerID', 'jobListingID'],
   data() {
     return {
       form: {
