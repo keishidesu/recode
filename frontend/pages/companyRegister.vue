@@ -8,7 +8,7 @@
             <h2 class="font-weight-bold mt-2">
               Let your company be known
             </h2>
-            <b-card class="mt-2 border-0 border-round">
+            <b-card class="mt-2 border-round">
               <b-form @submit="onSubmit">
                 <b-form-group id="input-dev-compName" label-for="dinput-1">
                   <b-form-input

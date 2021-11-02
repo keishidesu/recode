@@ -20,7 +20,7 @@ const {
   body: bodyVal,
   validationResult
 } = require('express-validator'); // TODO: express validator
-
+const path = require('path');
 
 // Set Swagger configurations
 const swaggerOptions = {
@@ -39,7 +39,7 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions); // Initialize swagger docs with configurations above
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
-app.use(cors());
+app.use(cors({ origin:'http://localhost:3000', credentials:true }));
 
 // Import routers
 // var userRouter = require('./routers/user')(connection);
@@ -70,12 +70,12 @@ app.use(express.urlencoded({
 app.use(cookieParser()); // Enable server to parse cookies
 app.use(upload()); // Support file uploads
 
-app.use(cors());
-
 // Use routers
 app.use('/developer', sessionMiddleware, developerRouter);
 app.use('/company', sessionMiddleware, companyRouter);
 app.use('/admin', sessionMiddleware, adminRouter);
+app.use('/developerprofilephoto', express.static(path.join(__dirname, 'developerfiles', 'profilephoto')));
+app.use('/companyprofilephoto', express.static(path.join(__dirname, 'companyfiles', 'profilephoto')));
 
 // Default route for backend
 app.get('/', (req, res) => {
@@ -114,7 +114,7 @@ app.get('/joblistings', (req, res) => {
   });
 });
 
-app.get('/developer/:username', (req, res) => {
+app.get('/companyprofile/:username', (req, res) => {
   let username = req.params.username;
   let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.username AS developerUsername, D.email AS developerEmail, D.registered_at AS developerRegisteredAt, P.professional_title AS developerProfessionalTitle, P.description as developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.username = ?;';
   let query = connection.query(sql, [username], (err, results) => {
@@ -133,7 +133,7 @@ app.get('/developer/:username', (req, res) => {
 
 
 // Get specific company profile by username
-app.get('/company/:username', (req, res) => {
+app.get('/companyprofile/:username', (req, res) => {
   let username = req.params.username;
   let sql = 'SELECT C.name AS companyName, C.username AS companyUserName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt, P.id AS companyProfileId, P.tagline AS companyTagline, P.description AS companyDescription, P.website AS companyWebsite, P.profile_photo_filepath AS companyPhotoFilepath, P.description AS companyDescription, P.profile_photo_filepath AS companyProfilePhotoFilepath, P.website AS companyWebsite FROM Company C, CompanyProfile P WHERE C.id = P.company_id  AND C.username = ?;';
   let query = connection.query(sql, [username], (err, results) => {
