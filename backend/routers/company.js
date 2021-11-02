@@ -614,7 +614,6 @@ companyRouter.put('/joblisting',
 
 // Company get their own job listing
 companyRouter.get('/joblisting/:id',
-
     (req, res) => {
         // id indicates the company id
         const errors = validationResult(req);
@@ -636,13 +635,13 @@ companyRouter.get('/joblisting/:id',
 
         try {
             // let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
-            let sql = 'SELECT C.id AS companyID, J.id AS jobListingID, J.title AS companyJobListing, J.job_description AS companyJobDescription, J.salary_start AS jobListingSalaryStart, J.salary_end AS jobListingSalaryEnd, J.expiration_date AS jobListingExpirationDate FROM Company C, JobListing J WHERE C.id = J.company_id AND C.id = ?'; // AND D.password_hash = ?
+            let sql = 'SELECT C.id AS companyID, C.name AS companyName, P.profile_photo_filepath AS companyProfilePhotoPath, J.id AS jobListingID, J.title AS companyJobListing, J.job_description AS companyJobDescription, J.salary_start AS jobListingSalaryStart, J.salary_end AS jobListingSalaryEnd, J.expiration_date AS jobListingExpirationDate FROM Company C, CompanyProfile P, JobListing J WHERE C.id = J.company_id AND P.company_id = C.id AND C.id = ?'; // AND D.password_hash = ?
             let query = connection.query(sql, [companyID], (err, result) => {
                 if (err) {
                     throw err;
                 }
                 return res.status(200).json({
-                    'jobApplications': result,
+                    'jobListings': result,
                     'errorStatus': false
                 });
             });
@@ -660,6 +659,7 @@ companyRouter.get('/jobapplications/:joblistingid',
 (req, res) => {
     // id indicates the company id
     let companyID = req.session.userid;
+    let jobListingID = req.params.joblistingid;
     if (!(req.session.authenticated && req.session.role == 'COMPANY')) {
         return res.status(403).json({
             'message': 'Unauthorized to perform this action',
@@ -669,8 +669,8 @@ companyRouter.get('/jobapplications/:joblistingid',
 
     try {
         // let sql = 'SELECT L.title AS jobListingTitle, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, C.id AS companyId, L.id AS jobListingId, L.job_description AS jobListingDescription, L.salary_start AS jobListingSalaryStart, L.salary_end AS jobListingSalaryEnd, L.created_at AS jobListingCreateAt, L.expiration_date AS jobListingExpirationDate FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
-        let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, A.description AS jobApplicationDescription, A.status AS jobApplicationStatus, A.created_at AS jobApplicationCreatedAt FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ?'; // AND D.password_hash = ?
-        let query = connection.query(sql, [companyID], (err, result) => {
+        let sql = 'SELECT C.id AS companyID, L.id AS jobListingID, A.id AS applicationID, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.username AS developerUsername, D.email AS developerEmail, D.contact_number AS developerContactNumber, P.professional_title AS developerProfessionaTitle, P.description AS developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, Ct.name AS developerCountry, A.description AS jobApplicationDescription, A.status AS jobApplicationStatus, A.created_at AS jobApplicationCreatedAt FROM Company C, JobListing L, JobApplication A, Developer D, DeveloperProfile P, Country Ct WHERE C.id = L.company_id AND A.job_listing_id = L.id AND A.developer_id = D.id AND P.developer_id = D.id AND P.country_id = Ct.id AND C.id = ? AND L.id = ?'; // AND D.password_hash = ?
+        let query = connection.query(sql, [companyID, jobListingID], (err, result) => {
             if (err) {
                 throw err;
             }
