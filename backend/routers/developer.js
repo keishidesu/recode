@@ -107,7 +107,7 @@ developerRouter.post('/login',
             })
         }
 
-        let sql = 'SELECT D.id, D.first_name, D.last_name, D.email, D.contact_number, D.registered_at, D.password_hash FROM Developer D WHERE D.email = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT D.id AS developerID, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, D.registered_at AS developerRegisteredAt, D.password_hash FROM Developer D WHERE D.email = ?'; // AND D.password_hash = ?
         try {
             let query = connection.query(sql, [loginDetails.email], async (err, results) => {
                 if (err) throw err;
@@ -121,13 +121,24 @@ developerRouter.post('/login',
                         if (result == true) {
                             req.session.authenticated = true;
                             req.session.role = 'DEVELOPER';
-                            req.session.userid = results[0].id;
+                            req.session.userid = results[0].developerID;
                             // req.session.
                             console.log(req.session);
                             console.log(results);
+                            let cDev = results[0];
+                            let retrievedDev = {
+                                "developerID": cDev.developerID,
+                                "developerFirstName": cDev.developerFirstName,
+                                "developerLastName": cDev.developerLastName,
+                                "developerEmail": cDev.developerEmail,
+                                "developerContactNumber": cDev.developerContactNumber,
+                                "developerRegisteredAt": cDev.developerRegisteredAt
+                            }
+                            console.log(retrievedDev);
                             return res.status(200).json({
                                 'message': 'Login success!',
-                                'errorStatus': false
+                                'errorStatus': false,
+                                'developer': retrievedDev
                             });
                         } else {
                             return res.status(400).json({

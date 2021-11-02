@@ -78,9 +78,19 @@ adminRouter.post('/login',
                             // req.session.
                             console.log(req.session);
                             console.log(results);
+                            let cAd = results[0];
+                            let retrievedAdmin = {
+                                "adminID": cAd.id,
+                                "adminFirstName": cAd.first_name,
+                                "adminLastName": cAd.last_name,
+                                "adminEmail": cAd.email,
+                                "adminRegisteredAt": cAd.registered_at
+                            }
+                            console.log(retrievedAdmin);
                             return res.status(200).json({
                                 'message': 'Login success!',
-                                'errorStatus': false
+                                'errorStatus': false,
+                                'admin': retrievedAdmin
                             });
                         } else {
                             return res.status(400).json({

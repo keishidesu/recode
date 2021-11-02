@@ -78,9 +78,18 @@ companyRouter.post('/login',
                             // req.session.
                             console.log(req.session);
                             console.log(results);
+                            let cComp = results[0];
+                            let retrievedComp = {
+                                "companyID": cComp.id,
+                                "companyName": cComp.name,
+                                "companyEmail": cComp.developerEmail,
+                                "companyRegisteredAt": cComp.developerRegisteredAt
+                            }
+                            console.log(retrievedComp);
                             return res.status(200).json({
                                 'message': 'Login success!',
-                                'errorStatus': false
+                                'errorStatus': false,
+                                "company": retrievedComp
                             });
                         } else {
                             return res.status(400).json({
