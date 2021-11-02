@@ -107,7 +107,7 @@ developerRouter.post('/login',
             })
         }
 
-        let sql = 'SELECT D.id AS developerID, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, D.registered_at AS developerRegisteredAt, D.password_hash FROM Developer D WHERE D.email = ?'; // AND D.password_hash = ?
+        let sql = 'SELECT D.id AS developerID, D.username, D.first_name AS developerFirstName, D.last_name AS developerLastName, D.email AS developerEmail, D.contact_number AS developerContactNumber, D.registered_at AS developerRegisteredAt, D.password_hash FROM Developer D WHERE D.email = ?'; // AND D.password_hash = ?
         try {
             let query = connection.query(sql, [loginDetails.email], async (err, results) => {
                 if (err) throw err;
@@ -128,6 +128,7 @@ developerRouter.post('/login',
                             let cDev = results[0];
                             let retrievedDev = {
                                 "developerID": cDev.developerID,
+                                "developerUsername": cDev.username,
                                 "developerFirstName": cDev.developerFirstName,
                                 "developerLastName": cDev.developerLastName,
                                 "developerEmail": cDev.developerEmail,
