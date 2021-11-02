@@ -4,7 +4,7 @@
       <b-card v-for="job in jobs" :key="`${job.jobListingId}`" class="text-center bg-nf-white border-round mt-3" style="width:100%">
         <b-row>
           <b-col md="1" class="ml-4">
-            <b-img rounded :src="`${job.companyProfilePhotoFilepath}.png`" width="70px" fluid />
+            <b-img rounded :src="`http://localhost:8000${job.companyProfilePhotoFilepath}`" width="70px" fluid />
           </b-col>
           <b-col md="5" class="text-left ml-1">
             <div>{{job.companyName}}</div>
@@ -36,10 +36,11 @@
 export default {
   data() {
     return {
-      jobs: ''
+      jobs: '',
     }
   },
   async fetch() {
+    
     const jobs = await fetch('http://localhost:8000/joblistings')
     const res = await jobs.json()
     this.jobs = res

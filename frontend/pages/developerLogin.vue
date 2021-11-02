@@ -54,15 +54,27 @@ export default {
       .then((res) => {
         if (res.status == 200) {
           console.log(res)
+          localStorage.setItem('developer-id', res.data.developer.developerID)
+          this.$store.commit('session/auth', { devid: res.data.developer.developerID })
+          this.makeToast('Logged in!', 'Welcome back developer', 'success')
           this.$router.push('/developerDash')
         } else {
-          window.alert("Failed to login, please try again");
+          this.makeToast('Cannot be Logged in!', 'Something is wrong', 'warning')
         }
       })
       .catch((err) => {
         console.log(err)
+        this.makeToast('Cannot be Logged in!', err, 'warning')
+      })
+    },
+    makeToast (title, message, variant) {
+      this.$bvToast.toast(message, {
+        title,
+        variant,
+        autoHideDelay: 2500,
+        appendToast: true
       })
     }
-  }
+  },
 };
 </script>

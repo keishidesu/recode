@@ -7,12 +7,12 @@
         <b-col cols="9">
           <div class="my-4">
             <h5 class="font-weight-bold">Your Applied Jobs</h5>
-            <DevJobList />
+            <DevJobList />                
           </div>
-          <div class="my-4 pt-5">
+          <!-- <div class="my-4 pt-5">
             <h5 class="font-weight-bold">Your Completed Jobs</h5>
             <DevCompletedJobList />
-          </div>
+          </div> -->
         </b-col>
         <!-- <b-col>
           <div class="my-4">
@@ -29,19 +29,20 @@
 export default {
   data() {
     return {
+      developerApplications: '',
       bgcolor: 'bg-nf-primary',
-      developer: ''
+      devid: this.$store.state.session.devid,
     }
   },
   methods: {
     async getAccount() {
-      console.log('asdad')
       await this.$axios
-      .get('http://localhost:8000/developer/applications/897fed76-8407-421f-adb3-89f7fc97e638')
+      .get(`http://localhost:8000/developer/applications/${this.$store.state.session.devid}`, {
+      })
       .then((res) => {
         console.log(JSON.stringify(res))
         if (res.status == 200) {
-          this.developer = res.data
+          this.developerApplications = res.data
         } else {
           window.alert("Smth wrong");
         }

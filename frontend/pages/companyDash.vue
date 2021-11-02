@@ -29,9 +29,32 @@
 export default {
   data() {
     return {
-      bgcolor: 'bg-nf-primary'
+      companyJobs: '',
+      bgcolor: 'bg-nf-primary',
+      companyid: this.$store.state.session.companyid,
     }
-  }
+  },
+  methods: {
+    async getAccount() {
+      await this.$axios
+      .get(`http://localhost:8000/company/joblisting/${this.$store.state.session.companyid}`, {
+      })
+      .then((res) => {
+        console.log(JSON.stringify(res))
+        if (res.status == 200) {
+          this.companyJobs = res.data
+        } else {
+          window.alert("Smth wrong");
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
+  },
+  beforeMount(){
+    this.getAccount()
+  },
 }
 </script>
 
