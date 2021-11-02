@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav2 :class="bgcolor" />
+    <Nav :class="bgcolor" />
     <div class="container">
       <div class="row text-center justify-content-md-center mt-5">
         <div class="col-md-6">
@@ -70,7 +70,7 @@ export default {
       companyTagline: '',
       companyDescription: '',
       companyPassword: '',
-      companyImage : '',
+      companyImage : null,
     };
   },
   methods: {
@@ -81,20 +81,25 @@ export default {
     async companyRegister(e) {
       e.preventDefault()
 
-      let formData = new FormData()
-      formData.append('profilephoto', this.companyImage)
+      const formData = new FormData()
+      formData.append('email', this.companyEmail)
+      formData.append('name', this.companyName)
+      formData.append('username', this.companyUsername)
+      formData.append('website', this.companyWebsite)
+      formData.append('tagline', this.companyTagline)
+      formData.append('description', this.companyDescription)
+      formData.append('password', this.companyPassword)
+      formData.append('profilephoto', this.companyImage, this.companyImage.name)
+
 
       await this.$axios
-        .post('http://localhost:8000/company/register', {
-          email: this.companyEmail,
-          name: this.companyName,
-          username: this.companyUsername,
-          website: this.companyWebsite,
-          tagline: this.companyTagline,
-          description: this.companyDescription,
-          password: this.companyPassword,
-          formData
-        })
+        .post('http://localhost:8000/company/register', 
+          formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          },
+        )
         .then((res) => {
           if (res.status == 200) {
             console.log(res)

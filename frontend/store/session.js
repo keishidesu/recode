@@ -1,13 +1,24 @@
 export const state = () => ({
-  devid: localStorage.getItem('developer-id'),
-  companyid: localStorage.getItem('company-id'),
-  adminid: localStorage.getItem('admin-id')
+  devid: undefined,
+  companyid: undefined,
+  adminid: undefined,
+  role: undefined
 })
 
 export const mutations = {
-  auth (state, data) {
-    state.devid = data.devid
-    state.companyid = data.companyid
-    state.adminid = data.adminid
+  auth (state, { id, role }) {
+
+    if (role === 'ADMIN') {
+      state.adminid = id
+      console.log(id)
+    } else if (role === 'COMPANY') {
+      state.companyid = id
+      console.log(id)
+    } else if (role === 'DEVELOPER') {
+      state.devid = id
+      console.log(id)
+    }
+
+    state.role = role
   }
 }

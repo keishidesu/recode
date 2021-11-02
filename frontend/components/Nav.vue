@@ -11,16 +11,14 @@
             <b-nav-item v-for="(item, index) in navloggedin" :key="item[index]" class="ml-auto">
               <NuxtLink :to='`/${item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
             </b-nav-item>
-            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold text-white text-decoration-none">Company Dashboard</NuxtLink></b-nav-item>
-            <b-nav-item v-else><NuxtLink to='/developerDash' class="font-weight-bold text-white text-decoration-none">My Dashboard</NuxtLink></b-nav-item>
-            <b-nav-item v-if='isEmployer'><NuxtLink to='/companyDash' class="font-weight-bold nf-blue text-decoration-none">Post a Job</NuxtLink></b-nav-item>
+            <b-nav-item><NuxtLink :to='roleLink' class="font-weight-bold text-white text-decoration-none">My Dashboard</NuxtLink></b-nav-item>
             <b-nav-item><NuxtLink to='#' class="font-weight-bold nf-red">Logout</NuxtLink></b-nav-item>
           </b-navbar-nav>
 
           <!-- User NOT Logged In -->
           <b-navbar-nav v-else class="ml-auto">
-            <b-nav-item v-for="(item, index) in nav" :key="item[index]" class="ml-auto">
-              <b-button class="btn-outline-light"><NuxtLink to='`{item.link}`' class="text-white text-decoration-none">{{item.item}}</NuxtLink></b-button>
+            <b-nav-item v-for="(item2, index) in nav" :key="item2[index]" class="ml-auto">
+              <b-button class="btn-outline-light"><NuxtLink :to='`/${item2.link}`' class="text-white text-decoration-none">{{item2.item}}</NuxtLink></b-button>
             </b-nav-item>
           </b-navbar-nav>
           
@@ -33,20 +31,31 @@
 <script>
 export default {
   props: ['bgcolor'],
+  created() {
+    this.isLoggedIn = this.$store.state.session.companyid !== undefined || this.$store.state.session.adminid !== undefined || this.$store.state.session.devid !== undefined
+    const role = this.$store.state.session.role
+    if (role !== undefined) {
+      this.roleLink = '/' + role.toLowerCase() + 'Dash'
+    } else {
+      this.roleLink = ''
+    }
+    
+    this.$forceUpdate()
+  },
   data() {
     return {
-      isLoggedIn: true,
-      isEmployer: false,
-
+      isLoggedIn: false,
+      roleLink: '',
       navloggedin: [
         {item:'Explore Jobs', link: ''},
         {item:'Explore Companies', link: 'companyListing'},
         {item:'Connect with Developers', link: 'developerListing'},
       ],
       nav: [
-        {item:'Sign In', link: '#'},
-        {item:'Join as Company', link: '#'},
-        {item:'Join as Developer', link: '#'},
+        {item:'Sign In (Company)', link: 'companyLogin'},
+        {item:'Sign In (Developer)', link: 'developerLogin'},
+        {item:'Join as Company', link: 'companyRegister'},
+        {item:'Join as Developer', link: 'developerRegister'},
       ]
     }
   }

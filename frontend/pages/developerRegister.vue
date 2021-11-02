@@ -1,150 +1,70 @@
 <template>
   <div>
-    <Nav2 :class="bgcolor" />
+    <Nav :class="bgcolor" />
     <div class="container">
       <div class="row text-center justify-content-md-center mt-5">
         <div class="col-md-6">
-          <v-row align="center">
-            <h2 class="font-weight-bold mt-2">
-              Be a Developer in re:code
+          <b-row>
+            <h2 class="font-weight-bold mt-5">
+              Show the world who you are
             </h2>
-            ``
-            <b-card class="mt-2 border-0 border-round">
-              <b-form @submit="onSubmit">
-                <b-form-group id="input-dev-fname" label-for="dinput-1">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-1"
-                    v-model="form.firstname"
-                    placeholder="First name"
-                    required
-                  >
-                  </b-form-input>
-                </b-form-group>
-                <b-form-group id="input-dev-lname" label-for="dinput-2">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-2"
-                    v-model="form.lastname"
-                    placeholder="Last name"
-                    required
-                  >
-                  </b-form-input>
+            <b-card class="mt-4 border-0 border-round">
+              <b-form @submit="developerRegister">
+                <b-form-group>
+                  <input v-model="developerEmail" type="email" class="border-round-small border form-control" placeholder="Enter email" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-uname" label-for="dinput-3">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-3"
-                    v-model="form.username"
-                    placeholder="User name"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerFirstname" type="text" class="border-round-small border form-control" placeholder="Enter First Name" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-nmb" label-for="dinput-4">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-5"
-                    v-model="form.nmb"
-                    placeholder="Contact number"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerLastname" type="text" class="border-round-small border form-control" placeholder="Enter Last Name" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-country" label-for="dinput-5">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-6"
-                    v-model="form.countryId"
-                    placeholder="country"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerUsername" type="text" class="border-round-small border form-control" placeholder="Enter Username" required>
+                </b-form-group>
+                <b-form-group>
+                  <input v-model="developerContact" type="text" class="border-round-small border form-control" placeholder="Enter Contact Number" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-pTitle" label-for="dinput-6">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-7"
-                    v-model="form.proTitle"
-                    placeholder="Professional Title"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerWebsite" type="text" class="border-round-small border form-control" placeholder="Enter Website Link" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-weblink" label-for="dinput-7">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-8"
-                    v-model="form.weblink"
-                    placeholder="Weblink"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerProftitle" type="text" class="border-round-small border form-control" placeholder="Enter Professional Title" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-description" label-for="dinput-8">
-                  <b-form-textarea
-                    rows="5"
-                    class="border-round-small"
-                    id="dinput-4"
-                    v-model="form.description"
-                    placeholder="Description"
-                    required
-                  >
-                  </b-form-textarea>
+                <b-form-select v-model="selectedCountry" :options="countries" class="border-round-small border form-control" />
+
+                 <b-form-group>
+                  <input v-model="developerDescription" type="text" class="mt-3 border-round-small border form-control" placeholder="Enter Description" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-email" label-for="dinput-9">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-9"
-                    v-model="form.email"
-                    placeholder="Email address"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group>
+                  <input v-model="developerPassword" type="password" class="border-round-small border form-control" placeholder="Password" required>
                 </b-form-group>
 
-                <b-form-group id="input-dev-pass" label-for="dinput-10">
-                  <b-form-input
-                    class="border-round-small"
-                    id="dinput-10"
-                    v-model="form.password"
-                    placeholder="Password"
-                    required
-                  >
-                  </b-form-input>
+                <b-form-group class="mt-3">
+                  <input type="file" name="developerImage" @change="onFileChangeImage" accept=".png, .jpeg, .jpg" required>
+                  <label>Profile photo...</label>
                 </b-form-group>
 
-                <b-form-file
-                  v-model="file1"
-                  :state="Boolean(file1)"
-                  placeholder="Choose Profile photo "
-                  drop-placeholder="Drop photo here..."
-                  class="mb-3"
-                ></b-form-file>
-
-                <b-form-file
-                  v-model="file2"
-                  :state="Boolean(file2)"
-                  placeholder="Choose resume file"
-                  drop-placeholder="Drop file here..."
-                  class="mb-3"
-                ></b-form-file>
+                <b-form-group class="mt-3">
+                  <input type="file" name="developerResume" @change="onFileChangeResume" accept=".pdf" required>
+                  <label>Resume (.pdf)...</label>
+                </b-form-group>
 
                 <div class="text-center">
-                  <b-button type="submit" class="nf-button-copy w-100"
-                    >Submit</b-button
-                  >
+                  <b-button type="submit" class="nf-button-secondary w-100">
+                    Register as Developer
+                  </b-button>
                 </div>
               </b-form>
             </b-card>
-          </v-row>
+          </b-row>
         </div>
       </div>
     </div>
@@ -156,25 +76,87 @@ export default {
   data() {
     return {
       bgcolor: "bg-nf-primary",
-
-      form: {
-        firstname: "",
-        lastname: "",
-        username: "",
-        description: "",
-        nmb: "",
-        country: "",
-        proftitle: "",
-        weblink: "",
-        email: "",
-        Password: ""
-      }
+      countries: [],
+      selectedCountry: '',
+      developerEmail: '',
+      developerFirstname: '',
+      developerLastname: '',
+      developerUsername: '',
+      developerContact: '',
+      developerWebsite: '',
+      developerProftitle: '',
+      developerCountry: '',
+      developerDescription: '',
+      developerPassword: '',
+      developerImage : null,
+      developerResume : null,
     };
   },
+
+  created () {
+    this.$axios.get('http://localhost:8000/developer/countries')
+      .then((res) => {
+        this.countries = res.data.countries.map((x) => { return { value: x.id, text: x.name }})
+      })
+  },
+
   methods: {
-    onSubmit(event) {
-      event.preventDefault();
-      alert(JSON.stringify(this.form));
+
+    onFileChangeImage(e) {
+      this.developerImage = e.target.files[0]
+    },
+
+    onFileChangeResume(e) {
+      this.developerResume = e.target.files[0]
+    },
+
+    async developerRegister(e) {
+      e.preventDefault()
+
+      const formData = new FormData()
+      formData.append('email', this.developerEmail)
+      formData.append('first_name', this.developerFirstname)
+      formData.append('last_name', this.developerLastname)
+      formData.append('username', this.developerUsername)
+      formData.append('website', this.developerWebsite)
+      formData.append('contact_number', this.developerContact)
+      formData.append('professional_title', this.developerProftitle)
+      formData.append('country', this.developerCountry)
+      formData.append('description', this.developerDescription)
+      formData.append('country_id', this.selectedCountry)
+      formData.append('password', this.developerPassword)
+      formData.append('profilephoto', this.developerImage, this.developerImage.name)
+      formData.append('resume', this.developerResume, this.developerResume.name)
+
+      await this.$axios
+        .post('http://localhost:8000/developer/register', 
+          formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          },
+        )
+        .then((res) => {
+          if (res.status == 200) {
+            console.log(res)
+            this.makeToast('Registered!', 'Welcome developer', 'success')
+            this.$router.push('/developerLogin')
+          } else {
+            this.makeToast('Cannot be Registered!', 'Something is wrong', 'warning')
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+          this.makeToast('Cannot be Registered!', err, 'warning')
+        })
+    },
+    makeToast (title, message, variant) {
+      this.$bvToast.toast(message, {
+        title,
+        variant,
+        autoHideDelay: 2500,
+        appendToast: true
+      })
     }
   }
 };

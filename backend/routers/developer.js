@@ -397,7 +397,7 @@ developerRouter.put('/profile',
         max: 100
     }),
     async (req, res) => {
-        // Expects: developerID, all of the fields of a particular developer (except for resume or profile photo)
+        // Expects: developerID, any of the fields of a particular developer (except for resume or profile photo)
         // countryID, professionalTitle, description, website
         const errors = validationResult(req);
 

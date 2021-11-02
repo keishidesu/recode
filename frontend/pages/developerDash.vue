@@ -9,17 +9,13 @@
             <h5 class="font-weight-bold">Your Applied Jobs</h5>
             <DevJobList v-bind:appliedJobs="developerApplications"/> 
           </div>
-          <!-- <div class="my-4 pt-5">
-            <h5 class="font-weight-bold">Your Completed Jobs</h5>
-            <DevCompletedJobList />
-          </div> -->
         </b-col>
-        <!-- <b-col>
+        <b-col>
           <div class="my-4">
             <h5 class="font-weight-bold">Your Profile</h5>
             <DeveloperProfile />
           </div>
-        </b-col> -->
+        </b-col>
       </b-row>
     </b-container>
   </div>
@@ -60,7 +56,6 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-      console.log(JSON.stringify(this.developerApplications))
     },
   },
   async beforeMount(){

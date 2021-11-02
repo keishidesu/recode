@@ -1,12 +1,12 @@
 <template>
   <div>
-    <Nav2 :class="bgcolor" />
+    <Nav :class="bgcolor" />
     <div class="container">
       <div class="row text-center justify-content-md-center mt-5">
         <div class="col-md-6">
           <v-row align="center">
             <h2 class="font-weight-bold mt-5">
-              Welcome Back
+              Welcome Back Developer
             </h2>
             <b-card class="mt-4 border-0 border-round">
               <b-form @submit="devLogin">
@@ -54,8 +54,7 @@ export default {
       .then((res) => {
         if (res.status == 200) {
           console.log(res)
-          localStorage.setItem('developer-id', res.data.developer.developerID)
-          this.$store.commit('session/auth', { devid: res.data.developer.developerID })
+          this.$store.commit('session/auth', { id: res.data.developer.developerID, role: 'DEVELOPER' })
           this.makeToast('Logged in!', 'Welcome back developer', 'success')
           this.$router.push('/developerDash')
         } else {

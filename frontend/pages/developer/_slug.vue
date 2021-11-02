@@ -32,7 +32,7 @@ export default {
     }
   },
   async asyncData({ params, $axios }) {
-    const developer = await $axios.$get(`http://localhost:8000/developer/${params.slug}`)
+    const developer = await $axios.$get(`http://localhost:8000/developerprofile/${params.slug}`)
     return { developer }
   }
 }

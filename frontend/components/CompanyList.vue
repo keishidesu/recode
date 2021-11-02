@@ -4,7 +4,7 @@
       <b-card v-for="(company, index) in companies" :key="company[index]" class="text-center bg-nf-white border-round mt-3" style="width:85%">
         <b-row>
           <b-col md="2" class="ml-4">
-            <b-img rounded :src="`${company.companyProfilePhotoFilepath}`" width="100px" fluid />
+            <b-img rounded :src="`${company.companyProfilePhotoFilepath}`" width="500px" fluid />
           </b-col>
           <b-col class="text-left ml-1">
             <h5 class="font-weight-bold text-uppercase">{{company.companyName}}</h5>
@@ -32,6 +32,15 @@ export default {
   async fetch() {
     const companies = await fetch('http://localhost:8000/companylist')
     const res = await companies.json()
+
+    for (let i = 0; i < res.length; i++) {
+      let URL = res[i].companyProfilePhotoFilepath;
+      URL = URL.split('/')
+      URL = URL[URL.length - 1]
+      let newURL = 'http://localhost:8000/companyprofilephoto/' + URL;
+      res[i].companyProfilePhotoFilepath = newURL;
+    }
+
     this.companies = res
     console.log(res)
   }

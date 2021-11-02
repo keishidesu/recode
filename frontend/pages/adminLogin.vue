@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav2 :class="bgcolor" />
+    <Nav :class="bgcolor" />
     <div class="container">
       <div class="row text-center justify-content-md-center mt-5">
         <div class="col-md-6">
@@ -54,8 +54,7 @@ export default {
       .then((res) => {
         if (res.status == 200) {
           console.log(res)
-          localStorage.setItem('admin-id', res.data.admin.adminID)
-          this.$store.commit('session/auth', { companyid: res.data.admin.adminID })
+          this.$store.commit('session/auth', { id: res.data.admin.adminID, role: 'ADMIN' })
           this.makeToast('Logged in!', 'Welcome back company', 'success')
           this.$router.push('/adminDash')
         } else {

@@ -32,7 +32,7 @@ export default {
     }
   },
   async asyncData({ params, $axios }) {
-    const company = await $axios.$get(`http://localhost:8000/company/${params.slug}`)
+    const company = await $axios.$get(`http://localhost:8000/companyprofile/${params.slug}`)
     return { company }
   }
 }
