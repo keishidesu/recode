@@ -7,7 +7,7 @@
         <b-col cols="9">
           <div class="my-4">
             <h5 class="font-weight-bold">Your Applied Jobs</h5>
-            <DevJobList />                
+            <DevJobList v-bind:appliedJobs="developerApplications"/> 
           </div>
           <!-- <div class="my-4 pt-5">
             <h5 class="font-weight-bold">Your Completed Jobs</h5>
@@ -35,14 +35,24 @@ export default {
     }
   },
   methods: {
-    async getAccount() {
+    async getAppliedJobs() {
+      let url = `http://localhost:8000/developer/applications/${this.$store.state.session.devid}`
       await this.$axios
-      .get(`http://localhost:8000/developer/applications/${this.$store.state.session.devid}`, {
+      .get(url, {
       })
       .then((res) => {
-        console.log(JSON.stringify(res))
+        // let data = res.json()
+        // console.log(data)
         if (res.status == 200) {
-          this.developerApplications = res.data
+          let devApp = res.data.jobApplications;
+          for (let i = 0; i < devApp.length; i++) {
+            let URL = devApp[i].companyProfilePhotoPath;
+            URL = URL.split('/')
+            URL = URL[URL.length - 1]
+            let newURL = 'http://localhost:8000/companyprofilephoto/' + URL;
+            devApp[i].companyProfilePhotoPath = newURL;
+          }
+          this.developerApplications = devApp;
         } else {
           window.alert("Smth wrong");
         }
@@ -50,14 +60,13 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-    }
+      console.log(JSON.stringify(this.developerApplications))
+    },
   },
-  beforeMount(){
-    this.getAccount()
+  async beforeMount(){
+    await this.getAppliedJobs()
   },
 }
 </script>
-
 <style>
-
 </style>
