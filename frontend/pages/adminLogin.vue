@@ -51,19 +51,43 @@ export default {
     return {
       bgcolor: "bg-nf-primary",
 
-      form: {
-        email: "",
-        Password: ""
-      }
+      companyEmail: '',
+      companyPassword: ''
     };
   },
   methods: {
-    onSubmit(event) {
-      event.preventDefault();
-      alert(JSON.stringify(this.form));
+    async companyLogin(e) {
+      e.preventDefault()
+      console.log(this.companyEmail, this.companyPassword);
+      await this.$axios
+        .post('http://localhost:8000/company/login', {
+        email: this.companyEmail,
+        password: this.companyPassword
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          console.log(res)
+          localStorage.setItem('company-id', res.data.company.companyID)
+          this.$store.commit('session/auth', { companyid: res.data.company.companyID })
+          this.makeToast('Logged in!', 'Welcome back company', 'success')
+          this.$router.push('/companyDash')
+        } else {
+          this.makeToast('Cannot be Logged in!', 'Something is wrong', 'warning')
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        this.makeToast('Cannot be Logged in!', err, 'warning')
+      })
+    },
+    makeToast (title, message, variant) {
+      this.$bvToast.toast(message, {
+        title,
+        variant,
+        autoHideDelay: 2500,
+        appendToast: true
+      })
     }
-  }
+  },
 };
 </script>
-
-<style scoped></style>
