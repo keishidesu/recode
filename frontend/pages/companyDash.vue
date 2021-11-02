@@ -11,7 +11,9 @@
               <PostJobModal />
             </b-modal>
             <h5 class="font-weight-bold mt-4">Your Posted Jobs</h5>
-            <CompanyPostedJobList />
+            <div v-if="itemsLoaded">
+              <CompanyPostedJobList v-bind:joblistings="jobListings"/>
+            </div>
           </div>
         </b-col>
         <b-col>
@@ -29,20 +31,35 @@
 export default {
   data() {
     return {
-      companyJobs: '',
       bgcolor: 'bg-nf-primary',
       companyid: this.$store.state.session.companyid,
+      jobListings: null,
+      itemsLoaded: false
     }
   },
   methods: {
     async getAccount() {
+      // Get current company job listings
       await this.$axios
       .get(`http://localhost:8000/company/joblisting/${this.$store.state.session.companyid}`, {
       })
       .then((res) => {
-        console.log(JSON.stringify(res))
+        // console.log('THINGS ARE HERE ');
         if (res.status == 200) {
-          this.companyJobs = res.data
+          // console.log(JSON.stringify(res))
+          let jobListings = res.data.jobListings;
+          // console.log(JSON.stringify(jobListings))
+          for (let i = 0; i < jobListings.length; i++) {
+            let URL = jobListings[i].companyProfilePhotoPath;
+            URL = URL.split('/')
+            URL = URL[URL.length - 1]
+            let newURL = 'http://localhost:8000/companyprofilephoto/' + URL;
+            jobListings[i].companyProfilePhotoPath = newURL;
+          }
+          
+          this.jobListings = jobListings
+          // console.log(JSON.stringify(jobListings))
+
         } else {
           window.alert("Smth wrong");
         }
@@ -50,10 +67,40 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-    }
-  },
-  beforeMount(){
-    this.getAccount()
+    },
+    async getApplicants() {
+      let jobListings = this.jobListings;
+      for (let i = 0; i < jobListings.length; i++) {
+        let jobListingID = jobListings[i].jobListingID
+        let jobApplications = []
+        // console.log(jobListingID)
+        await this.$axios
+          .get(`http://localhost:8000/company/jobapplications/${jobListingID}`)
+          .then((res) => {
+            // console.log(JSON.stringify(res))
+            if (res.status == 200) {
+              jobApplications = res.data.jobApplications
+              this.jobListings[i].jobApplications = jobApplications
+              // jobApplications.push(res.data.jobApplications)
+              // console.log(JSON.stringify(jobListings[i].jobApplications))
+              // jobListings[i].jobApplications = jobApplications
+            }
+          }).catch((err) => {
+            console.log(err)
+          })
+        // console.log(JSON.stringify(jobApplications))
+        // this.jobListings[i].jobApplications = jobApplications
+        // jobListings[i].jobApplications = jobApplications
+        // console.log(JSON.stringify(jobListings[i].jobApplications))
+        }
+        // this.jobListings = jobListings
+        // console.log(JSON.stringify(this.jobListings));
+        this.itemsLoaded = true;
+      }
+    },
+  async beforeMount(){
+    await this.getAccount()
+    await this.getApplicants()
   },
 }
 </script>

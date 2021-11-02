@@ -40,9 +40,11 @@ export default {
       .get(`http://localhost:8000/developer/applications/${this.$store.state.session.devid}`, {
       })
       .then((res) => {
+        let data = res.json()
+        // console.log(data)
         console.log(JSON.stringify(res))
         if (res.status == 200) {
-          this.developerApplications = res.data
+          this.developerApplications = res.jobApplications
         } else {
           window.alert("Smth wrong");
         }
@@ -50,10 +52,10 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-    }
+    },
   },
-  beforeMount(){
-    this.getAccount()
+  async beforeMount(){
+    await this.getAccount()
   },
 }
 </script>

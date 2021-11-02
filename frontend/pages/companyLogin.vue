@@ -53,7 +53,7 @@ export default {
       })
       .then((res) => {
         if (res.status == 200) {
-          console.log(res)
+          // console.log(`res: ${JSON.stringify(res)}`)
           localStorage.setItem('company-id', res.data.company.companyID)
           this.$store.commit('session/auth', { companyid: res.data.company.companyID })
           this.makeToast('Logged in!', 'Welcome back company', 'success')
