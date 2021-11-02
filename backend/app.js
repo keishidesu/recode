@@ -76,6 +76,7 @@ app.use('/company', sessionMiddleware, companyRouter);
 app.use('/admin', sessionMiddleware, adminRouter);
 app.use('/developerprofilephoto', express.static(path.join(__dirname, 'developerfiles', 'profilephoto')));
 app.use('/companyprofilephoto', express.static(path.join(__dirname, 'companyfiles', 'profilephoto')));
+app.use('/developerresume', express.static(path.join(__dirname, 'developerfiles', 'resume')));
 
 // Default route for backend
 app.get('/', (req, res) => {
