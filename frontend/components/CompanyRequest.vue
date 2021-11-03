@@ -49,7 +49,7 @@ export default {
       await this.$axios
       .put('http://localhost:8000/admin/companyregistration',{
         companyRegistrationID: this.request.companyRegistrationID,
-        status: 'APPROVE',
+        status: 'APPROVED',
         rejectionReason: 'none' 
       })
       .then((res) => {
