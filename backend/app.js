@@ -151,6 +151,25 @@ app.get('/companyprofile/:username', (req, res) => {
   });
 });
 
+// General logout route
+app.get('/logout', function (req, res, next) {
+  if (req.session.role != null || req.session.role != undefined) {
+      delete req.session.role;
+      delete req.session.authenticated;
+      delete req.session.userid;
+      console.log(req.session);
+      return res.status(200).json({
+          'message': 'Successfully logged out',
+          'errorStatus': false
+      });
+  } else {
+      return res.status(200).json({
+          'message': 'You were not logged in before',
+          'errorStatus': false
+      });
+  }
+});
+
 // Listen at stated port
 app.listen(port, () => {
   console.log(`Backend is listening at http://localhost:${port}`);

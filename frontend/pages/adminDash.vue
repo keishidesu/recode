@@ -32,8 +32,16 @@ export default {
       })
       .then((res) => {
         if (res.status == 200) {
-          this.adminCompanyRequests = res.data.companyRegistrations
-          console.log(res.data.companyRegistrations)
+          // console.log(res.data.companyRegistrations)
+          let compReg = res.data.companyRegistrations;
+          for (let i = 0; i < compReg.length; i++) {
+            let URL = compReg[i].companyProfilePhotoPath;
+            URL = URL.split('/')
+            URL = URL[URL.length - 1]
+            let newURL = 'http://localhost:8000/companyprofilephoto/' + URL;
+            compReg[i].companyProfilePhotoPath = newURL;
+          }
+          this.adminCompanyRequests = compReg;
         } else {
           window.alert("Smth wrong");
         }

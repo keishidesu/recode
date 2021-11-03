@@ -13,7 +13,6 @@
           </b-col>
           <b-col class="text-right mt-2">
             <b-button v-b-toggle="`collapse-posted-job-${index}`" class="nf-button-secondary">View Info</b-button>
-            <b-button @click='changeButton' class="nf-button">{{buttonValue}}</b-button>
           </b-col>
         </b-row>
         <b-row class="mx-3 text-left">
@@ -38,13 +37,9 @@ export default {
   props: ['joblistings'],
   data() {
     return {
-      buttonValue: 'open',
     }
   },
   methods: {
-    changeButton() {
-      this.buttonValue = (this.buttonValue === 'open' ? 'close' : 'open')
-    }
   }
 }
 </script>
