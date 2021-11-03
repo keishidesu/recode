@@ -106,7 +106,7 @@ export default {
             this.makeToast('Registered!', 'Welcome company', 'success')
             this.$router.push('/companyLogin')
           } else {
-            this.makeToast('Cannot be Registered!', 'Something is wrong', 'warning')
+            this.makeToast('Cannot be Registered!', 'Please fill up the form with acceptable input', 'warning')
           }
         })
         .catch((err) => {
