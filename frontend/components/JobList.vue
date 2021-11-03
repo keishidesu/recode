@@ -13,12 +13,10 @@
           <b-col class="text-left mt-3 font-weight-bold">RM{{job.jobListingSalaryStart}} -RM{{job.jobListingSalaryEnd}}</b-col>
           <b-col class="text-right mt-2">
             <b-button v-b-toggle="`collapse-alljobs-${job.jobListingId}`" class="nf-button-secondary">More</b-button>
-            <div v-if="devid">
-              <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
-              <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
-                <ApplyJobModal :developerID="devid" :jobListingID="job.jobListingId"/>
-              </b-modal>
-            </div>
+            <b-button v-if="devid" v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
+            <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
+              <ApplyJobModal :developerID="devid" :jobListingID="job.jobListingId"/>
+            </b-modal>
           </b-col>
         </b-row>
         <b-row class="mx-3 text-left">
