@@ -59,6 +59,9 @@ export default {
     },
   },
   async beforeMount(){
+    if (!this.$store.state.session.devid) {
+       this.$router.push('/developerLogin')
+    }
     await this.getAppliedJobs()
   },
 }

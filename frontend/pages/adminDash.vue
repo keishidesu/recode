@@ -52,6 +52,9 @@ export default {
     }
   },
   beforeMount(){
+    if (!this.$store.state.session.adminid) {
+       this.$router.push('/adminLogin')
+    }
     this.getAccount()
   },
 }

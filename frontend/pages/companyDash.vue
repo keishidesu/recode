@@ -99,6 +99,9 @@ export default {
       }
     },
   async beforeMount(){
+    if (!this.$store.state.session.companyid) {
+       this.$router.push('/companyLogin')
+    }
     await this.getAccount()
     await this.getApplicants()
   },
