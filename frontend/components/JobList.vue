@@ -16,7 +16,7 @@
             <div v-if="devid">
               <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
               <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
-                <ApplyJobModal :developerID="devid", :jobListingID="job.jobListingId"/>
+                <ApplyJobModal :developerID="devid" :jobListingID="job.jobListingId"/>
               </b-modal>
             </div>
           </b-col>
@@ -69,4 +69,3 @@ export default {
   }
 }
 </script>
-
