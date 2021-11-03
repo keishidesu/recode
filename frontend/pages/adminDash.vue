@@ -32,7 +32,7 @@ export default {
       })
       .then((res) => {
         if (res.status == 200) {
-          // console.log(res.data.companyRegistrations)
+          console.log(res.data.companyRegistrations)
           let compReg = res.data.companyRegistrations;
           for (let i = 0; i < compReg.length; i++) {
             let URL = compReg[i].companyProfilePhotoPath;
