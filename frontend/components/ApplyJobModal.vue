@@ -34,6 +34,8 @@ export default {
   methods: {
     onSubmit(event) {
       event.preventDefault()
+      // POST here
+      $('#<id of modal>').modal('hide');
       alert(JSON.stringify(this.form))
     }
   }
