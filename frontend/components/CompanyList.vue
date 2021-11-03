@@ -10,8 +10,8 @@
             <h5 class="font-weight-bold text-uppercase">{{company.companyName}}</h5>
             <div class="font-weight-bold font-italic">{{company.companyTagline}}</div>
             <div>{{company.companyDescription}}</div>
-            <div class="mt-3">Email: {{company.companyEmail}}</div>
-            <a class="mt-3">Website: {{company.companyWebsite}}</a><br>
+            <div class="mt-3">Email: <a :href="`mailto:${company.companyEmail}`">{{ company.companyEmail }}</a></div>
+            <p class="mt-3">Website: <a :href="company.companyWebsite">{{ company.companyWebsite }}</a></p>
             <NuxtLink :to='`/company/${company.companyUsername}`'>
               <b-button class="mt-2 nf-button-secondary">Learn more</b-button>
             </NuxtLink>

@@ -71,7 +71,7 @@ developerRouter.get('/', async(req, res) => {
     // }
     let userid = req.session.userid;
     if (req.session.userid) {
-        let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.username AS developerUsername, D.email AS developerEmail, D.registered_at AS developerRegisteredAt, P.professional_title AS developerProfessionalTitle, P.description as developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.id = ?;';
+        let sql = 'SELECT D.first_name AS developerFirstName, D.last_name AS developerLastName, D.contact_number AS developerContact, D.username AS developerUsername, D.email AS developerEmail, D.registered_at AS developerRegisteredAt, P.professional_title AS developerProfessionalTitle, P.description as developerDescription, P.resume_filepath AS developerResumeFilepath, P.profile_photo_filepath AS developerProfilePhotoFilepath, P.website AS developerWebsite, C.name AS country FROM Developer D, DeveloperProfile P, Country C WHERE D.id = P.developer_id AND P.country_id = C.id AND D.id = ?;';
         let query = connection.query(sql, [userid], (err, results) => {
           if (err) throw err;
           // console.log(results);

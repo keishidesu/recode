@@ -58,12 +58,12 @@ export default {
           this.makeToast('Logged in!', 'Welcome back developer', 'success')
           this.$router.push('/developerDash')
         } else {
-          this.makeToast('Cannot be Logged in!', 'Something is wrong', 'warning')
+          this.makeToast('Error!', 'Incorrect credentials, please try again', 'warning')
         }
       })
       .catch((err) => {
         console.log(err)
-        this.makeToast('Cannot be Logged in!', err, 'warning')
+        this.makeToast('Error!', 'Incorrect credentials, please try again', 'warning')
       })
     },
     makeToast (title, message, variant) {
