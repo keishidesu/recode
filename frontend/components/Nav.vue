@@ -12,7 +12,7 @@
               <NuxtLink :to='`/${item.link}`' class="font-weight-bold text-white text-decoration-none">{{item.item}}</NuxtLink>
             </b-nav-item>
             <b-nav-item><NuxtLink :to='roleLink' class="font-weight-bold text-white text-decoration-none">My Dashboard</NuxtLink></b-nav-item>
-            <b-nav-item @click="Logout"><div class="font-weight-bold nf-red">Logout</div></b-nav-item>
+            <b-nav-item @click="Logout"><NuxtLink to='/' class="font-weight-bold nf-red">Logout</NuxtLink></b-nav-item>
           </b-navbar-nav>
 
           <!-- User NOT Logged In -->
@@ -60,17 +60,12 @@ export default {
     }
   },
   methods: {
-    Logout() {
-      if (this.$store.state.session.companyid !== undefined) {
-        this.$store.state.session.companyid == undefined
-        this.$router.push('/')
-      } else if (this.$store.state.session.adminid !== undefined) {
-        this.$store.state.session.adminid == undefined
-        this.$router.push('/')
-      } else if (this.$store.state.session.devid !== undefined) {
-        this.$store.state.session.devid == undefined
-        this.$router.push('/')
-      }
+    async Logout() {
+      await this.$axios
+        .get('http://localhost:8000/logout')
+        .then(() => {
+          window.location.reload()
+        }) 
     }
   }
 }
