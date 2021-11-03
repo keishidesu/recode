@@ -10,9 +10,8 @@
         <p>
           {{ developer.developerDescription }}
         </p>
-        <p>Email: {{ developer.developerLastName }}</p>
+        <p>Email: {{ developer.developerEmail }}</p>
         <p>Website: {{ developer.developerWebsite }}</p>
-        <!-- get pdf here -->
       </b-container>
     </PageBody>
   </div>
@@ -22,6 +21,7 @@
 export default {
   data() {
     return {
+      developer: '',
       bgcolor: 'bg-nf-primary',
       header: {
         title: 'Explore Developers',
@@ -33,6 +33,7 @@ export default {
   },
   async asyncData({ params, $axios }) {
     const developer = await $axios.$get(`http://localhost:8000/developerprofile/${params.slug}`)
+    
     return { developer }
   }
 }

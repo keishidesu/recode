@@ -14,9 +14,8 @@
             <div>{{ applicant.jobApplicationStatus }}</div>
           </b-col>
         </b-row>
-        <p>{{ applicant.developerEmail }}</p>
-        <p>{{ applicant.jobApplicationDescription }}</p>
-        <div>
+        <div class="text-left">
+          <p>{{ applicant.developerEmail }}</p>
           <p class="font-weight-bold">Response: </p>
           <p>
             {{ applicant.jobApplicationDescription }}

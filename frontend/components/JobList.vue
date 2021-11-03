@@ -15,7 +15,6 @@
             <b-button v-b-toggle="`collapse-alljobs-${job.jobListingId}`" class="nf-button-secondary">More</b-button>
               <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
               <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
-                <!-- <ApplyJobModal :developerID="devid" :jobListingID="job.jobListingId"/>-->
                 <div>
                   <b-form @submit="onSubmit($event, job.jobListingId)">
                     <b-form-group id="input-applyjob-devresponse" label-for="applyjob-1">
