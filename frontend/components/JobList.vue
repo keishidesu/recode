@@ -13,7 +13,7 @@
           <b-col class="text-left mt-3 font-weight-bold">RM{{job.jobListingSalaryStart}} -RM{{job.jobListingSalaryEnd}}</b-col>
           <b-col class="text-right mt-2">
             <b-button v-b-toggle="`collapse-alljobs-${job.jobListingId}`" class="nf-button-secondary">More</b-button>
-              <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
+              <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary" v-if="devid">Apply Job</b-button>
               <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
                 <div>
                   <b-form @submit="onSubmit($event, job.jobListingId)">
@@ -114,6 +114,7 @@ export default {
   },
   async beforeMount() {
     await this.fetchData()
+    console.log(this.devid)
   }
 }
 </script>
