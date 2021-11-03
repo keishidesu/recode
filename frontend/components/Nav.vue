@@ -32,9 +32,9 @@
 export default {
   props: ['bgcolor'],
   created() {
-    this.isLoggedIn = this.$store.state.session.companyid !== undefined || this.$store.state.session.adminid !== undefined || this.$store.state.session.devid !== undefined
-    const role = this.$store.state.session.role
-    if (role !== undefined) {
+    this.isLoggedIn = localStorage.getItem('devid') !== null || localStorage.getItem('adminid') !== null || localStorage.getItem('companyid') !== null
+    const role = localStorage.getItem('role') || 'null'
+    if (role !== null || role !== 'null') {
       this.roleLink = '/' + role.toLowerCase() + 'Dash'
     } else {
       this.roleLink = ''
@@ -61,6 +61,7 @@ export default {
   },
   methods: {
     async Logout() {
+      localStorage.clear();
       await this.$axios
         .get('http://localhost:8000/logout')
         .then(() => {

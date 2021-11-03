@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       bgcolor: 'bg-nf-primary',
-      companyid: this.$store.state.session.companyid,
+      companyid: localStorage.getItem('companyid'),
       jobListings: null,
       itemsLoaded: false
     }
@@ -41,7 +41,7 @@ export default {
     async getAccount() {
       // Get current company job listings
       await this.$axios
-      .get(`http://localhost:8000/company/joblisting/${this.$store.state.session.companyid}`, {
+      .get(`http://localhost:8000/company/joblisting/${localStorage.getItem('companyid')}`, {
       })
       .then((res) => {
         // console.log('THINGS ARE HERE ');
@@ -99,7 +99,7 @@ export default {
       }
     },
   async beforeMount(){
-    if (!this.$store.state.session.companyid) {
+    if (!localStorage.getItem('companyid')) {
        this.$router.push('/companyLogin')
     }
     await this.getAccount()

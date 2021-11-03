@@ -54,7 +54,8 @@ export default {
       .then((res) => {
         if (res.status == 200) {
           console.log(res)
-          this.$store.commit('session/auth', { id: res.data.admin.adminID, role: 'ADMIN' })
+          localStorage.setItem('adminid', res.data.admin.adminID)
+          localStorage.setItem('role', 'ADMIN')
           this.makeToast('Logged in!', 'Welcome back company', 'success')
           this.$router.push('/adminDash')
         } else {

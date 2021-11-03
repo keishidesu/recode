@@ -51,7 +51,7 @@ export default {
         try {
           let res = await this.$axios
             .put('http://localhost:8000/developer/profile', {
-            developerID: this.$store.state.session.devid,
+            developerID: localStorage.getItem('devid'),
             professional_title: this.developerProftitle,
             description: this.developerDescription,
             website: this.developerWebsite,

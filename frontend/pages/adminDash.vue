@@ -22,7 +22,7 @@ export default {
     return {
       adminCompanyRequests: '',
       bgcolor: 'bg-nf-primary',
-      adminid: this.$store.state.session.adminid,
+      adminid: localStorage.getItem('adminid'),
     }
   },
   methods: {
@@ -52,7 +52,7 @@ export default {
     }
   },
   beforeMount(){
-    if (!this.$store.state.session.adminid) {
+    if (!localStorage.getItem('adminid')) {
        this.$router.push('/adminLogin')
     }
     this.getAccount()

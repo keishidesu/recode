@@ -38,7 +38,7 @@ export default {
         try {
           let res = await this.$axios
             .put('http://localhost:8000/company/profile', {
-            companyID: this.$store.state.session.companyid,
+            companyID: localStorage.getItem('companyid'),
             tagline: this.companyTagline,
             description: this.companyDescription,
             website: this.companyWebsite,

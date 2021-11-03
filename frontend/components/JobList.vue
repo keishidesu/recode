@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       jobs: '',
-      devid: this.$store.state.session.devid,
+      devid: localStorage.getItem('devid'),
       devresponse: ''
     }
   },

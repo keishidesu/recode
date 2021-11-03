@@ -81,7 +81,7 @@ export default {
       let url = `http://localhost:8000/company/joblisting`
       await this.$axios
       .post(url, {
-        companyID: this.$store.state.session.companyid,
+        companyID: localStorage.getItem('companyid'),
         title: this.form.jobtitle,
         jobDescription: this.form.jobdesc,
         salaryStart: this.form.salarystart,

@@ -27,12 +27,12 @@ export default {
     return {
       developerApplications: '',
       bgcolor: 'bg-nf-primary',
-      devid: this.$store.state.session.devid,
+      devid: localStorage.getItem('devid'),
     }
   },
   methods: {
     async getAppliedJobs() {
-      let url = `http://localhost:8000/developer/applications/${this.$store.state.session.devid}`
+      let url = `http://localhost:8000/developer/applications/${localStorage.getItem('devid')}`
       await this.$axios
       .get(url, {
       })
@@ -59,7 +59,7 @@ export default {
     },
   },
   async beforeMount(){
-    if (!this.$store.state.session.devid) {
+    if (!localStorage.getItem('devid')) {
        this.$router.push('/developerLogin')
     }
     await this.getAppliedJobs()

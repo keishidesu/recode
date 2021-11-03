@@ -54,7 +54,8 @@ export default {
       .then((res) => {
         if (res.status == 200) {
           // console.log(`res: ${JSON.stringify(res)}`)
-          this.$store.commit('session/auth', { id: res.data.company.companyID, role: 'COMPANY' })
+          localStorage.setItem('companyid', res.data.company.companyID)
+          localStorage.setItem('role', 'COMPANY')
           this.makeToast('Logged in!', 'Welcome back company', 'success')
           this.$router.push('/companyDash')
         } else {
