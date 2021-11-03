@@ -121,7 +121,7 @@ adminRouter.get('/companyregistrations', function (req, res) {
     }
 
     try {
-        let sql = 'SELECT C.id AS companyID, C.name AS companyName, C.email AS companyEmail, C.registered_at AS companyRegisteredAt, R.id AS companyRegistrationID, R.reviewed_admin AS companyRegistrationReviewerAdminID, R.status AS companyRegistrationStatus, R.rejection_reason AS companyRegistrationRejectionReason FROM Company C, CompanyRegistration R WHERE C.id = R.company_id;'; // AND D.password_hash = ?
+        let sql = 'SELECT C.id AS companyID, C.name AS companyName, P.profile_photo_filepath AS companyProfilePhotoPath, C.email AS companyEmail, C.registered_at AS companyRegisteredAt, R.id AS companyRegistrationID, R.reviewed_admin AS companyRegistrationReviewerAdminID, A.username AS companyRegistrationReviewerAdminUsername, R.status AS companyRegistrationStatus, R.rejection_reason AS companyRegistrationRejectionReason FROM Company C, CompanyProfile P, CompanyRegistration R, Admin A WHERE C.id = R.company_id AND A.id = R.reviewed_admin AND C.id = P.company_id;'; // AND D.password_hash = ?
         let query = connection.query(sql, (err, result) => {
             if (err) {
                 throw err;

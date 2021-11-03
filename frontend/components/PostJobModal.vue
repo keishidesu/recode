@@ -61,16 +61,46 @@ export default {
       jobexpirydate:'',
       form: {
         jobtitle: '',
-        salaryend: '',
+        salarystart: '',
         salaryend: '',
         jobdesc: '',
       }
     }
   },
   methods: {
-    onSubmit(event) {
+    makeToast (title, message, variant) {
+      this.$bvToast.toast(message, {
+        title,
+        variant,
+        autoHideDelay: 2500,
+        appendToast: true
+      })
+    },
+    async onSubmit(event) {
       event.preventDefault()
-      alert(JSON.stringify(this.form))
+      let url = `http://localhost:8000/company/joblisting`
+      await this.$axios
+      .post(url, {
+        companyID: this.$store.state.session.companyid,
+        title: this.form.jobtitle,
+        jobDescription: this.form.jobdesc,
+        salaryStart: this.form.salarystart,
+        salaryEnd: this.form.salaryend,
+        expirationDate: this.jobexpirydate
+      })
+      .then((res) => {
+        console.log(JSON.stringify(res))
+        if (res.status == 200) {
+          console.log("Submitted");
+          console.log(this.jobexpirydate);
+          let message = res.data.message;
+          this.makeToast('Job Applied Successfully', 'Submitted', 'success')
+        }
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err))
+          this.makeToast('Error!', 'Failed to submit job listing','danger')
+      })
     }
   }
 }

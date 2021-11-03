@@ -3,12 +3,12 @@
       <b-card class="bg-nf-white border-round mt-3" style="width:85%">
         <b-row>
           <b-col md="2" class="ml-4">
-            <!-- <b-img rounded :src="require(`../assets/img/${companyReq.companyImg}.png`)" width="100px" fluid /> -->
+            <b-img rounded :src="request.companyProfilePhotoPath" width="100px" fluid />
           </b-col>
           <b-col class="text-left ml-1">
             <div class="font-weight-bold">{{request.companyName}}</div>
             <div class="font-weight-bold">{{request.companyEmail}}</div>
-            <h4 v-if="request.companyRegistrationStatus != 'PENDING'" class="mt-3">{{request.companyRegistrationStatus}} by {{request.companyRegistrationReviewerAdminID}}</h4>
+            <h4 v-if="request.companyRegistrationStatus != 'PENDING'" class="mt-3">{{request.companyRegistrationStatus}} by {{request.companyRegistrationReviewerAdminUsername}}</h4>
             <h4 v-else class="mt-3">{{request.companyRegistrationStatus}}</h4>
             <b-row v-if="request.companyRegistrationStatus == 'PENDING'" class="mt-3 ml-auto">
               <b-button v-b-toggle="`collapse-${request.companyRegistrationID}`" class="nf-button-red mr-2" >Reject</b-button>

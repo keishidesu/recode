@@ -13,10 +13,26 @@
           <b-col class="text-left mt-3 font-weight-bold">RM{{job.jobListingSalaryStart}} -RM{{job.jobListingSalaryEnd}}</b-col>
           <b-col class="text-right mt-2">
             <b-button v-b-toggle="`collapse-alljobs-${job.jobListingId}`" class="nf-button-secondary">More</b-button>
-            <b-button v-if="devid" v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary">Apply Job</b-button>
-            <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
-              <ApplyJobModal :developerID="devid" :jobListingID="job.jobListingId"/>
-            </b-modal>
+              <b-button v-b-modal="`modal-applyjob-${job.jobListingId}`" class="nf-button-secondary" v-if="devid">Apply Job</b-button>
+              <b-modal :id="`modal-applyjob-${job.jobListingId}`" title="Apply for this Job" hide-footer>
+                <div>
+                  <b-form @submit="onSubmit($event, job.jobListingId)">
+                    <b-form-group id="input-applyjob-devresponse" label-for="applyjob-1">
+                      <b-form-textarea
+                        id="applyjob-1"
+                        rows="8"
+                        v-model="devresponse"
+                        placeholder="Enter application response"
+                        required
+                      ></b-form-textarea>
+                    </b-form-group>
+
+                    <div class="text-center">
+                      <b-button type="submit" class="nf-button-secondary w-100">Apply Job</b-button>
+                    </div>
+                  </b-form>
+                </div>
+              </b-modal>
           </b-col>
         </b-row>
         <b-row class="mx-3 text-left">
@@ -35,11 +51,20 @@ export default {
   data() {
     return {
       jobs: '',
-      devid: this.$store.state.session.devid 
+      devid: this.$store.state.session.devid,
+      devresponse: ''
     }
   },
 
   methods: {
+    makeToast (title, message, variant) {
+      this.$bvToast.toast(message, {
+        title,
+        variant,
+        autoHideDelay: 2500,
+        appendToast: true
+      })
+    },
     async applyJob() {
 
     },
@@ -61,9 +86,35 @@ export default {
       this.jobs = jobsDetails
       console.log(this.jobs)
     },
+    async onSubmit(event, jobListingID) {
+      event.preventDefault()
+      let url = `http://localhost:8000/developer/application`
+      await this.$axios
+      .post(url, {
+        developerID: this.devid,
+        jobListingID: jobListingID,
+        description: this.devresponse
+      })
+      .then((res) => {
+        // let data = res.json()
+        // console.log(data)
+        if (res.status == 200) {
+          console.log("Submitted");
+          let message = res.data.message;
+          this.makeToast('Job Applied Successfully', 'Submitted', 'success')
+          
+        } else {
+          this.makeToast('Something is wrong!', err, 'warning')
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
   },
   async beforeMount() {
     await this.fetchData()
+    console.log(this.devid)
   }
 }
 </script>
