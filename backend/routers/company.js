@@ -112,26 +112,21 @@ companyRouter.post('/login',
 // Endpoint to register a new company account
 companyRouter.post('/register',
     bodyVal('username').isLength({
-        min: 6,
         max: 50
     }),
     bodyVal('name').isLength({
-        min: 6,
         max: 50
     }),
     bodyVal('password').isLength({
-        min: 6,
         max: 30
     }),
     bodyVal('tagline').isLength({
         max: 50
     }),
     bodyVal('description').isLength({
-        min: 10,
         max: 255
     }),
     bodyVal('website').isLength({
-        min: 5,
         max: 100
     }),
     bodyVal('email').isEmail().normalizeEmail(),
@@ -386,15 +381,12 @@ companyRouter.put('/profile',
         max: 40
     }),
     bodyVal('tagline').isLength({
-        min: 10,
         max: 50
     }),
     bodyVal('description').isLength({
-        min: 10,
         max: 255
     }),
     bodyVal('website').isLength({
-        min: 5,
         max: 100
     }),
     async (req, res) => {
@@ -461,17 +453,14 @@ companyRouter.post('/joblisting',
         max: 40
     }),
     bodyVal('title').isLength({
-        min: 0,
         max: 50
     }),
     bodyVal('jobDescription').isLength({
-        min: 10,
         max: 2000
     }),
     bodyVal('salaryStart').isNumeric(),
     bodyVal('salaryEnd').isNumeric(),
     bodyVal('expirationDate').isLength({
-        min: 0,
         max: 50
     }),
     (req, res) => {
@@ -539,17 +528,14 @@ companyRouter.put('/joblisting',
         max: 40
     }),
     bodyVal('title').isLength({
-        min: 0,
         max: 50
     }),
     bodyVal('jobDescription').isLength({
-        min: 10,
         max: 2000
     }),
     bodyVal('salaryStart').isNumeric(),
     bodyVal('salaryEnd').isNumeric(),
     bodyVal('expirationDate').isLength({
-        min: 0,
         max: 50
     }),
     bodyVal('active').isNumeric({
@@ -699,7 +685,6 @@ companyRouter.put('/jobapplication',
         max: 40
     }),
     bodyVal('status').isLength({
-        min: 1,
         max: 40
     }),
     function (req, res) {
@@ -835,26 +820,3 @@ companyRouter.get('/logout', function (req, res, next) {
 });
 
 module.exports = companyRouter;
-
-// Endpoint to get all users
-/**
- * @swagger
- * /:
- *  get:
- *    description: Used to show welcome messages for the user route
- *    response:
- *      '200':
- *        description: Done adsasdasdddd
- * 
- */
-
-/**
- * @swagger
- * /testing:
- *  get:
- *    description: Used to show welcome messages
- *    response:
- *      '200':
- *        description: Done asdasdasdsad
- * 
- */

@@ -100,7 +100,6 @@ developerRouter.get('/getresume/:filename',
 developerRouter.post('/login',
     bodyVal('email').isEmail().normalizeEmail(),
     bodyVal('password').isLength({
-        min: 6,
         max: 30
     }),
     async (req, res) => {
@@ -196,36 +195,28 @@ developerRouter.post('/login',
 // Endpoint to register a new developer account
 developerRouter.post('/register',
     bodyVal('username').isLength({
-        min: 6,
         max: 50
     }),
     bodyVal('first_name').isLength({
-        min: 6,
         max: 50
     }),
     bodyVal('last_name').isLength({
-        min: 6,
         max: 50
     }),
     bodyVal('contact_number').isNumeric().isLength({
-        min: 10,
         max: 15
     }),
     bodyVal('professional_title').isLength({
-        min: 10,
         max: 100
     }),
     bodyVal('description').isLength({
-        min: 10,
         max: 255
     }),
     bodyVal('website').isLength({
-        min: 5,
         max: 100
     }),
     bodyVal('email').isEmail().normalizeEmail(),
     bodyVal('password').isLength({
-        min: 6,
         max: 30
     }),
     async (req, res) => {
@@ -381,19 +372,15 @@ developerRouter.put('/profile',
         max: 40
     }),
     bodyVal('professional_title').isLength({
-        min: 10,
         max: 100
     }),
     bodyVal('description').isLength({
-        min: 10,
         max: 255
     }),
     bodyVal('countryID').isLength({
-        min: 10,
         max: 255
     }),
     bodyVal('website').isLength({
-        min: 5,
         max: 100
     }),
     async (req, res) => {
@@ -707,7 +694,6 @@ developerRouter.get('/countries', (req, res) => {
 // Create new country
 developerRouter.post('/country',
     bodyVal('name').isLength({
-        min: 2,
         max: 50
     }),
     (req, res) => {

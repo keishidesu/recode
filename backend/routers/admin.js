@@ -26,7 +26,6 @@ const {
 adminRouter.post('/login',
     bodyVal('email').isEmail().normalizeEmail(),
     bodyVal('password').isLength({
-        min: 6,
         max: 30
     }),
     async (req, res) => {
@@ -148,7 +147,6 @@ adminRouter.put('/companyregistration',
         max: 40
     }),
     bodyVal('status').isLength({
-        min: 2,
         max: 100
     }),
     bodyVal('rejectionReason').isLength({
