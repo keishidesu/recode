@@ -461,6 +461,7 @@ companyRouter.post('/joblisting',
     bodyVal('salaryStart').isNumeric(),
     bodyVal('salaryEnd').isNumeric(),
     bodyVal('expirationDate').isLength({
+        min: 5,
         max: 50
     }),
     (req, res) => {
